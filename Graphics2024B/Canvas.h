@@ -1,4 +1,6 @@
 #pragma once
+#include "Matrix4D.h"
+
 class Canvas
 {
 public:
@@ -13,6 +15,11 @@ public:
 			unsigned char c, m, y, b;
 		};
 		long p;
+	};
+
+	struct VERTEX
+	{
+		VECTOR4D P;
 	};
 
 	struct Vertex { float x, y, z, w; };
@@ -50,6 +57,11 @@ public:
 	void LineLimits(int x0, int y0, int x1, int y1);
 	void Circle(int xc, int yc, int r, PIXEL Color);
 	void CircleLimits(int xc, int yx, int r);
+
+	// Procesador de vertices
+	typedef void(*VERTEXSHADER) (void* ctx, VERTEX& Input, VERTEX& Output);
+	static void VertexProcessor(void* ctx, VERTEXSHADER pVS, VERTEX* pInput, VERTEX* pOutput, int nVertices);
+	void DrawTriangleList(VERTEX* pVertex, int nVertices, PIXEL color);
 	
 	int GetWidth() const {
 		return m_nSizeX;

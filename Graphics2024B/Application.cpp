@@ -104,6 +104,11 @@ void ShaderColors(Canvas::PIXEL* pDest,
         Canvas::Lerp(C, D, x >> 8), y >> 8);
 }
 
+void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Output)
+{
+    Output.P = Input.P * (*pM);
+}
+
 void Application::Update()
 {
     auto pSwapChain = m_DXGIManager.GetSwapChain();
@@ -115,7 +120,7 @@ void Application::Update()
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
-    VECTOR4D O = {400, 400, 0, 1};
+    /*VECTOR4D O = {400, 400, 0, 1};
     
     VECTOR4D P1 = {50, 100, 0, 1}; //posiciones en pantalla con la componente homogénea en 1
     VECTOR4D V1 = {5, 6, 0, 0}; //vector con la componente homogénea en 0
@@ -145,28 +150,41 @@ void Application::Update()
     P2R2 = P2R2 * R2;
     P2R2 = P2R2 + O;
     
-    pCanvas->ResetLimits();
     pCanvas->Line(O.x, O.y, P2.x, P2.y, {255,255,255,0});
     pCanvas->Line(O.x, O.y, P2R.x, P2R.y, {255,0,0,0});
     pCanvas->Line(O.x, O.y, P2R1.x, P2R1.y, {0,255,0,0});
     pCanvas->Line(O.x, O.y, P2R2.x, P2R2.y, {0,0,255,0});
+    */
 
+    /*pCanvas->CircleLimits(200, 200, 100);
+      pCanvas->FillLimits(ShaderChess);
+      pCanvas->ResetLimits();
+      pCanvas->CircleLimits(400, 200, 100);
+      pCanvas->FillLimits(ShaderColors);
+      */
+
+    Canvas::VERTEX tri[] =
+    {
+        {{0,1,0,1}},
+        {{1,-1,0,1}},
+        {{-1,-1,0,1}}
+    };
+
+    Canvas::VERTEX OutputTri[3];
+
+    MATRIX4D ST = Scaling(200, 200, 1) * RotationZ(theta) * Translation(600, 400, 0);
+    Canvas::VertexProcessor(&ST, (Canvas::VERTEXSHADER)VertexShaderSimple, tri, OutputTri, 3);
+    
+    
+    pCanvas->ResetLimits();
+
+    pCanvas->DrawTriangleList(OutputTri, 3, {255, 255, 255, 0});
+    
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                          pCanvas->GetPitch());
     Canvas::DestroyCanvas(pCanvas);
     pSwapChain->Present(1, 0);
     time += 1.0f / 60;
     
-    /*pCanvas->CircleLimits(200, 200, 100);
-    pCanvas->FillLimits(ShaderChess);
-    pCanvas->ResetLimits();
-    pCanvas->CircleLimits(400, 200, 100);
-    pCanvas->FillLimits(ShaderColors);
-    pCanvas->Circle(600, 200, 50, {250, 100, 100, 0});
-    m_DXGIManager.SendData(pCanvas->GetBuffer(),
-                           pCanvas->GetPitch());
-    Canvas::DestroyCanvas(pCanvas);
-    pSwapChain->Present(1, 0);
-    time += 1.0f / 60;
-    */
+  
 }
