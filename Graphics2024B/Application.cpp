@@ -262,13 +262,12 @@ void Application::Update()
 
     pCanvas->DrawTriangleList(OutputTri, 3, {255, 255, 255, 0});
     */
-
     pCanvas->ResetLimits();
 
     ListPoints(pCanvas);
     ListLine(pCanvas, time);
     StripLines(pCanvas);
-    //StripTrinagles(pCanvas);
+    StripTrinagles(pCanvas);
     FanTriangles(pCanvas);
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),

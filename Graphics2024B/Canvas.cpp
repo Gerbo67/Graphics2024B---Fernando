@@ -381,15 +381,15 @@ void Canvas::DrawTriangleStrip(VERTEX* pVertex, int nVertices)
     {
         if((i & 1) == 0)
         {
-            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].color.y, pVertex[0].color);
-            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].color.y, pVertex[1].color);
-            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].color.y, pVertex[2].color);
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].P.y, pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].P.y, pVertex[2].color);
         }
         else
         {
-            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[1].P.x, pVertex[1].color.y, pVertex[1].color);
-            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[0].P.x, pVertex[0].color.y, pVertex[0].color);
-            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[2].P.x, pVertex[2].color.y, pVertex[2].color);
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[0].P.x, pVertex[0].P.y, pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[2].P.x, pVertex[2].P.y, pVertex[2].color);
         }
     }
 }
