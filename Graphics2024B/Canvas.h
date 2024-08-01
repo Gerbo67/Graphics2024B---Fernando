@@ -12,7 +12,7 @@ public:
 		};
 		struct
 		{
-			unsigned char c, m, y, b;
+			unsigned char c, m, y, bc;
 		};
 		long p;
 	};
@@ -69,6 +69,9 @@ public:
 	void DrawLineStrip(VERTEX* pVertex, int nVertices);
 	void DrawTriangleStrip(VERTEX* pVertex, int nVertices);
 	void DrawTriangleFan(VERTEX* pVertex, int nVertices);
+
+	bool SaveCanvasToFile(const char* pszFileName);
+	Canvas* Clone();
 	
 	int GetWidth() const {
 		return m_nSizeX;

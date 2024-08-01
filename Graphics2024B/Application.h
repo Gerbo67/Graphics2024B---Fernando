@@ -12,6 +12,8 @@ public:
 	IDXGIAdapter* m_pAdapter;
 	void Run();
 	static Application* GetApplication();
+	Canvas* m_pLastFrame;
+	void KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam);
 protected:
 	static Application* sm_pApp;
 	Application();

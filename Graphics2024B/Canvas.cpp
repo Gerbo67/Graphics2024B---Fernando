@@ -1,4 +1,6 @@
 #include "Canvas.h"
+#include <fstream>
+#include <Windows.h>
 
 Canvas::Canvas()
 {
@@ -377,9 +379,9 @@ void Canvas::DrawLineStrip(VERTEX* pVertex, int nVertices)
 
 void Canvas::DrawTriangleStrip(VERTEX* pVertex, int nVertices)
 {
-    for (int i = 0; i < nVertices -2; i++, pVertex++)
+    for (int i = 0; i < nVertices - 2; i++, pVertex++)
     {
-        if((i & 1) == 0)
+        if ((i & 1) == 0)
         {
             Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].P.y, pVertex[0].color);
             Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex[1].color);
@@ -396,12 +398,97 @@ void Canvas::DrawTriangleStrip(VERTEX* pVertex, int nVertices)
 
 void Canvas::DrawTriangleFan(VERTEX* pVertex, int nVertices)
 {
-    VERTEX *pV1 = pVertex + 1;
-    VERTEX *pV2 = pVertex + 2;
-    for(int i = 0; i < nVertices - 2; i++, pV1++, pV2++)
+    VERTEX* pV1 = pVertex + 1;
+    VERTEX* pV2 = pVertex + 2;
+    for (int i = 0; i < nVertices - 2; i++, pV1++, pV2++)
     {
         Line(pVertex->P.x, pVertex->P.y, pV1->P.x, pV1->P.y, pV1->color);
         Line(pV1->P.x, pV1->P.y, pV2->P.x, pV2->P.y, pV2->color);
         Line(pV2->P.x, pV2->P.y, pVertex->P.x, pVertex->P.y, pVertex->color);
     }
+}
+
+bool Canvas::SaveCanvasToFile(const char* pszFileName)
+{
+    // Guardar nuestro canvas en formato de 24bpp, sin compresión
+    fstream out;
+
+    out.open(pszFileName, ios::out | ios::binary);
+    if (!out.is_open())
+        return false;
+
+    // Creación de las estructuras para manejo del dib
+    BITMAPFILEHEADER bfh;
+    BITMAPINFOHEADER bih;
+
+    memset(&bfh, 0, sizeof(bfh));
+    memset(&bih, 0, sizeof(bih));
+
+    // 10*1, 10*24 + 31 = 241 + 31 = 271 / 32 = 8 * 4 = 32 bytes almacenamiento en disco
+    int nRowLength = ((m_nSizeX * 24 + 31) / 32) * 4;
+
+    // Computar los datos del encabezado del archivo
+    bfh.bfType = 'MB';
+    bfh.bfSize = sizeof(bfh) + sizeof(bih) + nRowLength * m_nSizeY + 0; // 0 corresponde al tamaño de la paleta
+    bfh.bfOffBits = sizeof(bfh) + sizeof(bih);
+
+    // Computar la información de la imagen
+    bih.biSize = sizeof(bih); // Tamaño del header de la imagen
+    bih.biWidth = m_nSizeX;
+    bih.biHeight = m_nSizeY;
+    bih.biPlanes = 1;
+    bih.biBitCount = 24; //bpp
+    bih.biCompression = BI_RGB;
+    bih.biSizeImage = nRowLength * m_nSizeY; // Tamaño en disco
+    bih.biXPelsPerMeter = 1000;
+    bih.biYPelsPerMeter = 1000;
+
+    // Escribir los encabezados en el archivo
+    out.write((char*)&bfh, sizeof(bfh));
+    out.write((char*)&bih, sizeof(bih));
+
+    // Crear y guardar la paleta segun aplique
+    switch (bih.biBitCount)
+    {
+    case 1:
+    case 4:
+    case 8:
+        // Construir y guardar la paleta
+        break;
+    }
+
+    // Guardar la imagen
+    char* pRowBuffer = new char[nRowLength];
+    memset(pRowBuffer, 0, nRowLength);
+    switch (bih.biBitCount)
+    {
+    case 24:
+        for (int j = m_nSizeY - 1; j >= 0; j--)
+        {
+            PIXEL* pSource = &(*this)(0, j);
+            RGBTRIPLE* pEncoding = (RGBTRIPLE*)pRowBuffer;
+            for (int i = 0; i < m_nSizeX; i++)
+            {
+                pEncoding->rgbtRed = pSource->r;
+                pEncoding->rgbtGreen = pSource->g;
+                pEncoding->rgbtBlue = pSource->b;
+
+                pEncoding++;
+                pSource++;
+            }
+
+            out.write(pRowBuffer, nRowLength);
+        }
+    }
+
+    delete[] pRowBuffer;
+    out.close();
+    return true;
+}
+
+Canvas* Canvas::Clone()
+{
+    Canvas* pCanvas = CreateCanvas(m_nSizeX, m_nSizeY);
+    memcpy(pCanvas->m_pBuffer, m_pBuffer, m_nSizeX * m_nSizeY * sizeof(PIXEL));
+    return pCanvas;
 }

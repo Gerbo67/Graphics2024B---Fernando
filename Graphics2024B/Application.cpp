@@ -16,6 +16,7 @@ Application* Application::GetApplication()
 Application::Application()
 {
     //Initialize application data!!!
+    m_pLastFrame = nullptr;
 }
 
 Application::~Application()
@@ -63,6 +64,7 @@ bool Application::Initialize()
 
 bool Application::Uninitialize()
 {
+    if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
     return true;
 }
 
@@ -158,7 +160,7 @@ void StripLines(Canvas* pCanvas)
     pCanvas->DrawLineStrip(Lines, 8);
 }
 
-void StripTrinagles(Canvas* pCanvas)
+void StripTriangles(Canvas* pCanvas)
 {
     Canvas::VERTEX StripTri[] =
     {
@@ -172,7 +174,7 @@ void StripTrinagles(Canvas* pCanvas)
     };
     Canvas::VERTEX OutputStripTri[7];
 
-    MATRIX4D ST = Scaling(50, 50, 1) * Translation(300, 300, 0);
+    MATRIX4D ST = Scaling(50, 50, 1) * RotationZ((float)3.141592f / 8) * Translation(300, 300, 0);
     Canvas::VertexProcessor(&ST, (Canvas::VERTEXSHADER)VertexShaderSimple, StripTri, OutputStripTri, 7);
 
     pCanvas->DrawTriangleStrip(OutputStripTri, 7);
@@ -262,17 +264,42 @@ void Application::Update()
 
     pCanvas->DrawTriangleList(OutputTri, 3, {255, 255, 255, 0});
     */
+    /*
     pCanvas->ResetLimits();
-
+    
     ListPoints(pCanvas);
     ListLine(pCanvas, time);
     StripLines(pCanvas);
-    StripTrinagles(pCanvas);
     FanTriangles(pCanvas);
+    */
+    StripTriangles(pCanvas);
+
+    pCanvas->ResetLimits();
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                            pCanvas->GetPitch());
+
+    // Almacenamos el último frame
+    if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
+    m_pLastFrame = pCanvas->Clone();
+
     Canvas::DestroyCanvas(pCanvas);
     pSwapChain->Present(1, 0);
     time += 1.0f / 60;
+}
+
+void Application::KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case 'S':
+            if (m_pLastFrame)
+                m_pLastFrame->SaveCanvasToFile("..\\Data\\Save.bmp");
+            break;
+        }
+        break;
+    }
 }
