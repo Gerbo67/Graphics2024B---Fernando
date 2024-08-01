@@ -350,3 +350,58 @@ void Canvas::DrawTriangleList(VERTEX* pVertex, int nVertices, PIXEL color)
         pVertex += 3;
     }
 }
+
+void Canvas::DrawPointList(VERTEX* pVertex, int nVertices)
+{
+    for (int i = 0; i < nVertices; i++, pVertex++)
+        operator()(pVertex->P.x, pVertex->P.y) = pVertex->color;
+}
+
+void Canvas::DrawLineList(VERTEX* pVertex, int nVertices)
+{
+    for (int i = 0; i < nVertices - 1; i += 2, pVertex += 2)
+    {
+        Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex->color);
+    }
+}
+
+void Canvas::DrawLineStrip(VERTEX* pVertex, int nVertices)
+{
+    for (int i = 0; i < nVertices - 1; i++)
+    {
+        VERTEX* pV = pVertex;
+        pVertex++;
+        Line(pV->P.x, pV->P.y, pVertex->P.x, pVertex->P.y, pV->color);
+    }
+}
+
+void Canvas::DrawTriangleStrip(VERTEX* pVertex, int nVertices)
+{
+    for (int i = 0; i < nVertices -2; i++, pVertex++)
+    {
+        if((i & 1) == 0)
+        {
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].color.y, pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].color.y, pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].color.y, pVertex[2].color);
+        }
+        else
+        {
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[1].P.x, pVertex[1].color.y, pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[0].P.x, pVertex[0].color.y, pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[2].P.x, pVertex[2].color.y, pVertex[2].color);
+        }
+    }
+}
+
+void Canvas::DrawTriangleFan(VERTEX* pVertex, int nVertices)
+{
+    VERTEX *pV1 = pVertex + 1;
+    VERTEX *pV2 = pVertex + 2;
+    for(int i = 0; i < nVertices - 2; i++, pV1++, pV2++)
+    {
+        Line(pVertex->P.x, pVertex->P.y, pV1->P.x, pV1->P.y, pV1->color);
+        Line(pV1->P.x, pV1->P.y, pV2->P.x, pV2->P.y, pV2->color);
+        Line(pV2->P.x, pV2->P.y, pVertex->P.x, pVertex->P.y, pVertex->color);
+    }
+}

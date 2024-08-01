@@ -109,6 +109,87 @@ void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Out
     Output.P = Input.P * (*pM);
 }
 
+void ListPoints(Canvas* pCanvas)
+{
+    Canvas::VERTEX Points[] =
+    {
+        {{100, 100, 0, 1}, {255, 255, 255, 0}},
+        {{150, 150, 0, 1}, {255, 0, 0, 0}},
+        {{100, 200, 0, 1}, {0, 255, 0, 0}},
+        {{50, 150, 0, 1}, {0, 0, 255, 0}},
+    };
+    pCanvas->DrawPointList(Points, 4);
+}
+
+void ListLine(Canvas* pCanvas, float time)
+{
+    static int t = 0;
+    Canvas::VERTEX Lines[] =
+    {
+        {{100, 0, 0, 1}, {255, 255, 255, 0}},
+        {{100, 30, 0, 1}, {255, 255, 255, 0}},
+        {{120, 20, 0, 1}, {255, 255, 255, 0}},
+        {{120, 50, 0, 1}, {255, 255, 255, 0}},
+        {{130, 5, 0, 1}, {255, 255, 255, 0}},
+        {{130, 35, 0, 1}, {255, 255, 0, 0}},
+        {{150, 25, 0, 1}, {255, 255, 255, 0}},
+        {{150, 60, 0, 1}, {255, 255, 0, 0}},
+    };
+    Canvas::VERTEX OutputLines[8];
+    MATRIX4D T = Translation(0, t, 0);
+    Canvas::VertexProcessor(&T, (Canvas::VERTEXSHADER)VertexShaderSimple, Lines, OutputLines, 8);
+    pCanvas->DrawLineList(OutputLines, 8);
+    t += 5;
+}
+
+void StripLines(Canvas* pCanvas)
+{
+    Canvas::VERTEX Lines[] =
+    {
+        {{100, 0, 0, 1}, {255, 255, 255, 0}},
+        {{100, 30, 0, 1}, {255, 255, 255, 0}},
+        {{120, 20, 0, 1}, {255, 255, 255, 0}},
+        {{120, 50, 0, 1}, {255, 255, 255, 0}},
+        {{130, 5, 0, 1}, {255, 255, 255, 0}},
+        {{130, 35, 0, 1}, {255, 255, 0, 0}},
+        {{150, 25, 0, 1}, {255, 255, 255, 0}},
+        {{150, 60, 0, 1}, {255, 255, 0, 0}},
+    };
+    pCanvas->DrawLineStrip(Lines, 8);
+}
+
+void StripTrinagles(Canvas* pCanvas)
+{
+    Canvas::VERTEX StripTri[] =
+    {
+        {{-1, -1, 0, 1}, {255, 255, 255, 0}},
+        {{0, 1, 0, 1}, {255, 255, 255, 0}},
+        {{1, -1, 0, 1}, {255, 255, 255, 0}},
+        {{2, 1, 0, 1}, {255, 255, 255, 0}},
+        {{3, -1, 0, 1}, {255, 255, 255, 0}},
+        {{4, 1, 0, 1}, {255, 255, 255, 0}},
+        {{5, -1, 0, 1}, {255, 255, 255, 0}},
+    };
+    Canvas::VERTEX OutputStripTri[7];
+
+    MATRIX4D ST = Scaling(50, 50, 1) * Translation(300, 300, 0);
+    Canvas::VertexProcessor(&ST, (Canvas::VERTEXSHADER)VertexShaderSimple, StripTri, OutputStripTri, 7);
+
+    pCanvas->DrawTriangleStrip(OutputStripTri, 7);
+}
+
+void FanTriangles(Canvas* pCanvas)
+{
+    Canvas::VERTEX FanTri[] =
+    {
+        {{100, 100, 0, 1}, {255, 0, 0, 0}},
+        {{80, 30, 0, 1}, {255, 0, 0, 0}},
+        {{140, 30, 0, 1}, {255, 0, 0, 0}},
+        {{140, 60, 0, 1}, {255, 0, 0, 0}},
+    };
+    pCanvas->DrawTriangleFan(FanTri, 4);
+}
+
 void Application::Update()
 {
     auto pSwapChain = m_DXGIManager.GetSwapChain();
@@ -163,6 +244,7 @@ void Application::Update()
       pCanvas->FillLimits(ShaderColors);
       */
 
+    /*
     Canvas::VERTEX tri[] =
     {
         {{0,1,0,1}},
@@ -179,12 +261,19 @@ void Application::Update()
     pCanvas->ResetLimits();
 
     pCanvas->DrawTriangleList(OutputTri, 3, {255, 255, 255, 0});
-    
+    */
+
+    pCanvas->ResetLimits();
+
+    ListPoints(pCanvas);
+    ListLine(pCanvas, time);
+    StripLines(pCanvas);
+    //StripTrinagles(pCanvas);
+    FanTriangles(pCanvas);
+
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
-                         pCanvas->GetPitch());
+                           pCanvas->GetPitch());
     Canvas::DestroyCanvas(pCanvas);
     pSwapChain->Present(1, 0);
     time += 1.0f / 60;
-    
-  
 }

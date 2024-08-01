@@ -20,6 +20,7 @@ public:
 	struct VERTEX
 	{
 		VECTOR4D P;
+		PIXEL color;
 	};
 
 	struct Vertex { float x, y, z, w; };
@@ -61,7 +62,13 @@ public:
 	// Procesador de vertices
 	typedef void(*VERTEXSHADER) (void* ctx, VERTEX& Input, VERTEX& Output);
 	static void VertexProcessor(void* ctx, VERTEXSHADER pVS, VERTEX* pInput, VERTEX* pOutput, int nVertices);
+
 	void DrawTriangleList(VERTEX* pVertex, int nVertices, PIXEL color);
+	void DrawPointList(VERTEX* pVertex, int nVertices);
+	void DrawLineList(VERTEX* pVertex, int nVertices);
+	void DrawLineStrip(VERTEX* pVertex, int nVertices);
+	void DrawTriangleStrip(VERTEX* pVertex, int nVertices);
+	void DrawTriangleFan(VERTEX* pVertex, int nVertices);
 	
 	int GetWidth() const {
 		return m_nSizeX;
