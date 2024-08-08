@@ -12,12 +12,11 @@
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Application.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Application.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/Matrix4D.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Matrix4D.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/Matrix4D.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Matrix4D.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.ilk" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.ilk" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" afterDir="false" />
@@ -181,7 +180,7 @@
       <workItem from="1721624809244" duration="67000" />
       <workItem from="1722302055465" duration="2826000" />
       <workItem from="1722461124421" duration="14757000" />
-      <workItem from="1723082544750" duration="11096000" />
+      <workItem from="1723082544750" duration="14876000" />
     </task>
     <servers />
   </component>
@@ -197,7 +196,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Graphics2024B/Application.cpp</url>
-          <line>347</line>
+          <line>371</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

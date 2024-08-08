@@ -32,6 +32,7 @@ public:
         ADDRESS_MODE_WRAP,
         ADDRESS_MODE_MIRROR
     };
+
 protected:
     struct LIMIT
     {
@@ -89,6 +90,9 @@ public:
     PIXEL Peek(int i, int j);
     void SetAddressMode(AddressMode mode);
     void SetColorBorder(PIXEL color);
+
+    PIXEL PointSampler(float s, float t);
+    PIXEL BilinearSampler(float s, float t);
 
     int GetWidth() const
     {

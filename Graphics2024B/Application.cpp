@@ -207,44 +207,68 @@ void Application::Update()
     auto pCanvas = m_DXGIManager.GetCanvas();
     static float hour = 8.0f;
     static float min = 20.0f;
+    //static float time = hour * 3600 + min * 60;
     static float time = hour * 3600 + min * 60;
     float phi = time * 3.141592;
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
-    Canvas* pTexture;
-    pTexture = Canvas::CreateCanvas(300, 300);
-    pTexture->Shade(ShaderNoise);
-    pTexture->SetColorBorder({127, 127, 0, 0});
-    pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
-
-    // Moviendo la textura al centro del canvas, utilizando transformaciones
-    VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
-    VECTOR4D HalfSize = Size * 0.5f;
-    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
-    VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
-
-    MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * RotationZ(phi) * Translation(
-        HalfScreenSize.x, HalfScreenSize.y, 0.0f);
-    // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
-    // y no al canvas objetivo.
-    MATRIX4D MInv;
-    Inverse(M, MInv);
-
-    for (int j = 0; j < pCanvas->GetSizeY(); j++)
+    Canvas* pTexture = nullptr;
+    if (m_pImage)
     {
-        for (int i = 0; i < pCanvas->GetSizeX(); i++)
+        //pTexture = Canvas::CreateCanvas(300, 300);
+        //pTexture->Shade(ShaderNoise);
+
+        pTexture = m_pImage->Clone();
+        pTexture->SetColorBorder({127, 127, 0, 0});
+        pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
+
+        // Moviendo la textura al centro del canvas, utilizando transformaciones
+        VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
+        VECTOR4D HalfSize = Size * 0.5f;
+        VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+        VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
+
+        //MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * Scaling(2.0f, 2.0f, 1.0f) * RotationZ(phi) * Translation(HalfScreenSize.x, HalfScreenSize.y, 0.0f);
+        MATRIX4D M = Scaling((ScreenSize.x / Size.x) * 0.5f, (ScreenSize.y / Size.y) * 0.5f, 1) * RotationZ(phi / 5); // Escalando para cubrir el área objetivo
+        //MATRIX4D M = Identity();
+        // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
+        // y no al canvas objetivo.
+        MATRIX4D MInv;
+        Inverse(M, MInv);
+
+        // Optimizando
+        // p y q serán muestras i, j pero aplicando la multiplicación de matrices versión optimizada
+        // p = i*m00 + j*m10 + 0*m20 + 1*m30
+        // q = i*m01 + j*m11 + 0*m21 + 1*m31
+
+        float p, q;
+
+        for (int j = 0; j < pCanvas->GetSizeY(); j++)
         {
-            VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
-            VECTOR4D Output = Input * MInv;
-            (*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floorf(Output.y));
+            p = j * MInv.m10 + MInv.m30;
+            q = j * MInv.m11 + MInv.m31;
+            
+            for (int i = 0; i < pCanvas->GetSizeX(); i++)
+            {
+                //VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
+                //VECTOR4D Output = Input * MInv;
+                //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floor(Output.y));
+                //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(p), (int)floor(q));
+                //(*pCanvas)(i, j) = pTexture->PointSampler(p, q);
+                (*pCanvas)(i, j) = pTexture->BilinearSampler(p, q);
+
+                p += MInv.m00;
+                q += MInv.m01;
+            }
         }
     }
 
-    if (m_pImage)
+
+    /*if (m_pImage)
         for (int j = 0; j < m_pImage->GetSizeY(); j++)
             for (int i = 0; i < m_pImage->GetSizeX(); i++)
-                (*pCanvas)(i, j) = (*m_pImage)(i, j);
+                (*pCanvas)(i, j) = (*m_pImage)(i, j);*/
 
     /*VECTOR4D O = {400, 400, 0, 1};
     

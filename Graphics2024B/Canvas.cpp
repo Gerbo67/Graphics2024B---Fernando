@@ -627,8 +627,9 @@ Canvas::PIXEL Canvas::Peek(int i, int j)
         j = abs(j % m_nSizeY);
 
         i = (p & 1) ? (m_nSizeX - 1) - i : i; // Tomar la parte de la textura que toca, dependiendo el valor de p y q.
-        j = (q & 1) ? (m_nSizeY - 1) - j : j; // Valores pares muestran la textura en orientación normal, impares, en orientación espejo.
-        
+        j = (q & 1) ? (m_nSizeY - 1) - j : j;
+    // Valores pares muestran la textura en orientación normal, impares, en orientación espejo.
+
         return m_pBuffer[i + j * m_nSizeX];
     }
     return m_BorderColor;
@@ -642,4 +643,35 @@ void Canvas::SetAddressMode(AddressMode Mode)
 void Canvas::SetColorBorder(PIXEL Color)
 {
     m_BorderColor = Color;
+}
+
+Canvas::PIXEL Canvas::PointSampler(float s, float t)
+{
+    return Peek((int)floorf(s + 0.5f), (int)floorf(t + 0.5f));
+}
+
+Canvas::PIXEL Canvas::BilinearSampler(float s, float t)
+{
+    PIXEL A, B, C, D;
+    int p, q;
+    float f, g;
+    int j, k;
+
+    // Calcular el textel pivote
+    p = (int)floorf(s);
+    q = (int)floorf(t);
+
+    // Obtener los texeles adyacentes a (s, t)
+    A = Peek(p, q);
+    B = Peek(p + 1, q);
+    C = Peek(p, q + 1);
+    D = Peek(p + 1, q + 1);
+
+    // Fracción interpolante
+    f = s - p;
+    g = t - q;
+    j = 256 * f;
+    k = 256 * g;
+
+    return Lerp(Lerp(A, B, j), Lerp(C, D, j), k);
 }
