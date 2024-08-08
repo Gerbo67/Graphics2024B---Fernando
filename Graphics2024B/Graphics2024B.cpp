@@ -118,12 +118,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    Application::GetApplication()->Event(message, wParam, lParam);
     switch (message)
     {
-    case WM_KEYDOWN:
-    case WM_KEYUP:
-        Application::GetApplication()->KeyEvent(message, wParam, lParam);
-        break;
+   
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);

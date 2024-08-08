@@ -9,10 +9,14 @@
   <component name="ChangeListManager">
     <list default="true" id="4a3b1311-6e17-463c-92f4-eab470ac63fb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Graphics2024B/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Graphics2024B/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Fondo24bpp.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/Data/Fondo24bpp.bmp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/cascada24pbb.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/Data/cascada24pbb.bmp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Application.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Application.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graphics2024B/Application.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Application.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graphics2024B/Graphics2024B.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Graphics2024B.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.ilk" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.ilk" afterDir="false" />
@@ -20,7 +24,6 @@
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Matrix4D.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Matrix4D.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.idb" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.idb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Debug/Graphics2024B.exe" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Debug/Graphics2024B.exe" afterDir="false" />
@@ -82,6 +85,7 @@
     <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
@@ -180,13 +184,14 @@
       <workItem from="1721624809244" duration="67000" />
       <workItem from="1722302055465" duration="2826000" />
       <workItem from="1722461124421" duration="14757000" />
-      <workItem from="1723082544750" duration="14876000" />
+      <workItem from="1723082544750" duration="19495000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
@@ -196,7 +201,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Graphics2024B/Application.cpp</url>
-          <line>371</line>
+          <line>411</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

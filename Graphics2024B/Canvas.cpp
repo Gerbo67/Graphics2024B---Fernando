@@ -43,10 +43,10 @@ Canvas::PIXEL& Canvas::operator()(int i, int j)
 
 void Canvas::Clear(PIXEL color)
 {
-    PIXEL* pPixel = m_pBuffer;
+    PIXEL* pPositionixel = m_pBuffer;
     int c = m_nSizeX * m_nSizeY;
     while (c--)
-        *pPixel++ = color;
+        *pPositionixel++ = color;
 }
 
 Canvas::PIXEL Canvas::Lerp(PIXEL A, PIXEL B, short c)
@@ -93,7 +93,7 @@ void Canvas::Shade(SHADER pShader)
 }
 
 void Canvas::Line(int x0, int y0, int x1, int y1,
-                  PIXEL Color)
+                  PIXEL color)
 {
     int dx, dy, p, x, y;
     x = x0;
@@ -110,10 +110,10 @@ void Canvas::Line(int x0, int y0, int x1, int y1,
         p = dx - 2 * dy;
         int dp0 = -2 * dy;
         int dp1 = 2 * dx - 2 * dy;
-        // Para lineas con m<1
+        // Positionara lineas con m<1
         while (dx--)
         {
-            (*this)(x, y) = Color;
+            (*this)(x, y) = color;
             if (p > 0)
             {
                 p += dp0;
@@ -133,7 +133,7 @@ void Canvas::Line(int x0, int y0, int x1, int y1,
         int dp1 = 2 * dy - 2 * dx;
         while (dy--)
         {
-            (*this)(x, y) = Color;
+            (*this)(x, y) = color;
             if (p > 0)
             {
                 p += dp0;
@@ -173,7 +173,7 @@ void Canvas::SetLimit(int i, int j)
     }
 }
 
-void Canvas::FillLimits(PIXEL Color)
+void Canvas::FillLimits(PIXEL color)
 {
     PIXEL* pRow = m_pBuffer;
     for (int j = 0; j < m_nSizeY; j++)
@@ -182,8 +182,8 @@ void Canvas::FillLimits(PIXEL Color)
         if (lim->left < lim->right)
         {
             int c = lim->right - lim->left;
-            PIXEL* pPixel = pRow + lim->left;
-            while (c--) *pPixel++ = Color;
+            PIXEL* pPositionixel = pRow + lim->left;
+            while (c--) *pPositionixel++ = color;
         }
         pRow += m_nSizeX;
     }
@@ -204,10 +204,10 @@ void Canvas::FillLimits(SHADER pShader)
             int i = lim->left;
             x = i * dx;
             int c = lim->right - lim->left;
-            PIXEL* pPixel = pRow + lim->left;
+            PIXEL* pPositionixel = pRow + lim->left;
             while (c--)
             {
-                pShader(pPixel++, i++, j, x, y);
+                pShader(pPositionixel++, i++, j, x, y);
                 x += dx;
             }
         }
@@ -233,7 +233,7 @@ void Canvas::LineLimits(int x0, int y0, int x1, int y1)
         p = dx - 2 * dy;
         int dp0 = -2 * dy;
         int dp1 = 2 * dx - 2 * dy;
-        // Para lineas con m<1
+        // Positionara lineas con m<1
         while (dx--)
         {
             this->SetLimit(x, y);
@@ -271,7 +271,7 @@ void Canvas::LineLimits(int x0, int y0, int x1, int y1)
     }
 }
 
-void Canvas::Circle(int xc, int yc, int r, PIXEL Color)
+void Canvas::Circle(int xc, int yc, int r, PIXEL color)
 {
     //f(x,y) = x^2 + y^2 - r^2  = 0
     int x = 0;
@@ -282,14 +282,14 @@ void Canvas::Circle(int xc, int yc, int r, PIXEL Color)
     _8y = 8 * y;
     while (x < y)
     {
-        (*this)(x + xc, y + yc) = Color;
-        (*this)(-x + xc, y + yc) = Color;
-        (*this)(x + xc, -y + yc) = Color;
-        (*this)(-x + xc, -y + yc) = Color;
-        (*this)(y + xc, x + yc) = Color;
-        (*this)(-y + xc, x + yc) = Color;
-        (*this)(y + xc, -x + yc) = Color;
-        (*this)(-y + xc, -x + yc) = Color;
+        (*this)(x + xc, y + yc) = color;
+        (*this)(-x + xc, y + yc) = color;
+        (*this)(x + xc, -y + yc) = color;
+        (*this)(-x + xc, -y + yc) = color;
+        (*this)(y + xc, x + yc) = color;
+        (*this)(-y + xc, x + yc) = color;
+        (*this)(y + xc, -x + yc) = color;
+        (*this)(-y + xc, -x + yc) = color;
         if (p > 0)
         {
             p += _8x - _8y + 20;
@@ -365,7 +365,8 @@ void Canvas::DrawLineList(VERTEX* pVertex, int nVertices)
 {
     for (int i = 0; i < nVertices - 1; i += 2, pVertex += 2)
     {
-        Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex->color);
+        Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y,
+             pVertex->color);
     }
 }
 
@@ -385,15 +386,21 @@ void Canvas::DrawTriangleStrip(VERTEX* pVertex, int nVertices)
     {
         if ((i & 1) == 0)
         {
-            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].P.y, pVertex[0].color);
-            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex[1].color);
-            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].P.y, pVertex[2].color);
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[0].P.x, pVertex[0].P.y,
+                 pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y,
+                 pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].P.y,
+                 pVertex[2].color);
         }
         else
         {
-            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[1].P.x, pVertex[1].P.y, pVertex[1].color);
-            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[0].P.x, pVertex[0].P.y, pVertex[0].color);
-            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[2].P.x, pVertex[2].P.y, pVertex[2].color);
+            Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[1].P.x, pVertex[1].P.y,
+                 pVertex[1].color);
+            Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[0].P.x, pVertex[0].P.y,
+                 pVertex[0].color);
+            Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[2].P.x, pVertex[2].P.y,
+                 pVertex[2].color);
         }
     }
 }
@@ -495,7 +502,7 @@ Canvas* Canvas::Clone()
     return pCanvas;
 }
 
-Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixel)(PIXEL Color))
+Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPositionixel)(PIXEL color))
 {
     // Cargar nuestro canvas en formato de 8bpp y 24bpp, sin compresión
     fstream in;
@@ -562,8 +569,8 @@ Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixe
                 pDest->b = palette[*pDecode].rgbBlue;
                 pDest->a = 0xFF;
 
-                if (pfLoadPixel)
-                    *pDest = pfLoadPixel(*pDest);
+                if (pfLoadPositionixel)
+                    *pDest = pfLoadPositionixel(*pDest);
 
                 pDecode++;
                 pDest++;
@@ -583,8 +590,8 @@ Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixe
                 pDest->b = pDecode->rgbtBlue;
                 pDest->a = 0xFF;
 
-                if (pfLoadPixel)
-                    *pDest = pfLoadPixel(*pDest);
+                if (pfLoadPositionixel)
+                    *pDest = pfLoadPositionixel(*pDest);
 
                 pDecode++;
                 pDest++;
@@ -640,9 +647,9 @@ void Canvas::SetAddressMode(AddressMode Mode)
     m_AddressMode = Mode;
 }
 
-void Canvas::SetColorBorder(PIXEL Color)
+void Canvas::SetColorBorder(PIXEL color)
 {
-    m_BorderColor = Color;
+    m_BorderColor = color;
 }
 
 Canvas::PIXEL Canvas::PointSampler(float s, float t)
@@ -674,4 +681,101 @@ Canvas::PIXEL Canvas::BilinearSampler(float s, float t)
     k = 256 * g;
 
     return Lerp(Lerp(A, B, j), Lerp(C, D, j), k);
+}
+
+void Canvas::TextureInverseMapping(const VERTEX V[3], Canvas* pTexture)
+{
+    float A, B, C, D, E, F, det;
+    det = V[0].P.x * (V[1].P.y - V[2].P.y) +
+        V[0].P.y * (V[2].P.x - V[1].P.x) +
+        (V[1].P.x * V[2].P.y - V[2].P.x * V[1].P.y);
+    if (det < 0) return;
+    A = (V[1].TexCoord.x * V[2].P.y -
+            V[2].TexCoord.x * V[1].P.y) +
+        (V[2].TexCoord.x * V[0].P.y -
+            V[0].TexCoord.x * V[2].P.y) +
+        (V[0].TexCoord.x * V[1].P.y -
+            V[1].TexCoord.x * V[0].P.y);
+    B = (V[1].P.x * V[2].TexCoord.x -
+            V[2].P.x * V[1].TexCoord.x) +
+        (V[2].P.x * V[0].TexCoord.x -
+            V[0].P.x * V[2].TexCoord.x) +
+        (V[0].P.x * V[1].TexCoord.x -
+            V[1].P.x * V[0].TexCoord.x);
+    C = V[0].P.x * (
+            V[1].P.y * V[2].TexCoord.x -
+            V[2].P.y * V[1].TexCoord.x) +
+        V[0].P.y * (
+            V[2].P.x * V[1].TexCoord.x -
+            V[1].P.x * V[2].TexCoord.x) +
+        V[0].TexCoord.x * (
+            V[1].P.x * V[2].P.y -
+            V[2].P.x * V[1].P.y);
+
+    D = (V[1].TexCoord.y * V[2].P.y -
+            V[2].TexCoord.y * V[1].P.y) +
+        (V[2].TexCoord.y * V[0].P.y -
+            V[0].TexCoord.y * V[2].P.y) +
+        (V[0].TexCoord.y * V[1].P.y -
+            V[1].TexCoord.y * V[0].P.y);
+    E = (V[1].P.x * V[2].TexCoord.y -
+            V[2].P.x * V[1].TexCoord.y) +
+        (V[2].P.x * V[0].TexCoord.y -
+            V[0].P.x * V[2].TexCoord.y) +
+        (V[0].P.x * V[1].TexCoord.y -
+            V[1].P.x * V[0].TexCoord.y);
+    F = V[0].P.x * (
+            V[1].P.y * V[2].TexCoord.y -
+            V[2].P.y * V[1].TexCoord.y) +
+        V[0].P.y * (
+            V[2].P.x * V[1].TexCoord.y -
+            V[1].P.x * V[2].TexCoord.y) +
+        V[0].TexCoord.y * (
+            V[1].P.x * V[2].P.y -
+            V[2].P.x * V[1].P.y);
+    det = 1.0f / det;
+    //Se calcula el recíproco del determinante, para optimizar su aplicación con los coeficientes
+    //Se multiplica por el tamaño de la textura, para cambiarlo del espacio normalizado u,v; al espacio s,t
+    A *= det * (pTexture->GetSizeX() - 1);
+    B *= det * (pTexture->GetSizeX() - 1);
+    C *= det * (pTexture->GetSizeX() - 1);
+    D *= det * (pTexture->GetSizeY() - 1);
+    E *= det * (pTexture->GetSizeY() - 1);
+    F *= det * (pTexture->GetSizeY() - 1);
+    //Se establecen los límites de la geometría
+    ResetLimits();
+    LineLimits(V[0].P.x + 0.5f, V[0].P.y + 0.5f, V[1].P.x + 0.5f, V[1].P.y + 0.5f);
+    LineLimits(V[1].P.x + 0.5f, V[1].P.y + 0.5f, V[2].P.x + 0.5f, V[2].P.y + 0.5f);
+    LineLimits(V[2].P.x + 0.5f, V[2].P.y + 0.5f, V[0].P.x + 0.5f, V[0].P.y + 0.5f);
+    int y;
+    int cx;
+    //Se busca el primer límite a rellenar.
+    for (y = 0; y < m_nSizeY; y++)
+    {
+        cx = m_pLimits[y].right - m_pLimits[y].left;
+        if (cx > 0) break;
+    }
+
+    //Se aplica la matriz de transformación de manera similar cómo lo hicimos en la versión optimizada para cada vértice
+    float byc = B * y + C;
+    float eyc = E * y + F;
+    PIXEL* pLine = m_pBuffer + y * m_nSizeX;
+    for (; y < m_nSizeY; y++)
+    {
+        cx = m_pLimits[y].right - m_pLimits[y].left;
+        if (cx < 0) break;
+        int x = m_pLimits[y].left;
+        PIXEL* pWrite = pLine + x;
+        float s = A * x + byc;
+        float t = D * x + eyc;
+        byc += B;
+        eyc += E;
+        while (cx--)
+        {
+            *pWrite++ = pTexture->BilinearSampler(s, t);
+            s += A;
+            t += D;
+        }
+        pLine += m_nSizeX;
+    }
 }

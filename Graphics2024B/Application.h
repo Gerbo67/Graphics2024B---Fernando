@@ -13,8 +13,12 @@ public:
 	void Run();
 	static Application* GetApplication();
 	Canvas* m_pLastFrame;
-	void KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam);
+	void Event(UINT msg, WPARAM wParam, LPARAM lParam);
 	Canvas* m_pImage;
+	Canvas* m_pTexture;
+	Canvas* m_pTexture2;
+	int m_nMouseX;
+	int m_nMouseY;
 protected:
 	static Application* sm_pApp;
 	Application();

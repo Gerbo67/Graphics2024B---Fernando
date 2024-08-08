@@ -15,7 +15,6 @@ public:
         {
             unsigned char c, m, y, bc;
         };
-
         long p;
     };
 
@@ -23,6 +22,7 @@ public:
     {
         VECTOR4D P;
         PIXEL color;
+        VECTOR4D TexCoord;
     };
 
     enum AddressMode
@@ -93,6 +93,8 @@ public:
 
     PIXEL PointSampler(float s, float t);
     PIXEL BilinearSampler(float s, float t);
+    
+    void TextureInverseMapping(const VERTEX V[3], Canvas* pTexture);
 
     int GetWidth() const
     {

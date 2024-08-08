@@ -18,6 +18,9 @@ Application::Application()
     //Initialize application data!!!
     m_pLastFrame = nullptr;
     m_pImage = nullptr;
+    m_pTexture = nullptr;
+    m_pTexture2 = nullptr;
+    m_nMouseX = m_nMouseY = 0;
 }
 
 Application::~Application()
@@ -60,6 +63,14 @@ bool Application::Initialize()
     }
     else
         return false;
+    // Cargando texturas
+    m_pTexture = Canvas::CreateCanvasFromFile("..\\Data\\Fondo24bpp.bmp", nullptr);
+    if (!m_pTexture)
+        return false;
+
+    m_pTexture2 = Canvas::CreateCanvasFromFile("..\\Data\\flower24bpp.bmp", nullptr);
+    if (!m_pTexture2)
+        return false;
     return true;
 }
 
@@ -67,6 +78,8 @@ bool Application::Uninitialize()
 {
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
     if (m_pImage) Canvas::DestroyCanvas(m_pLastFrame);
+    if (m_pTexture) Canvas::DestroyCanvas(m_pTexture);
+    if (m_pTexture2) Canvas::DestroyCanvas(m_pTexture2);
     return true;
 }
 
@@ -118,6 +131,7 @@ void ShaderNoise(Canvas::PIXEL* pDest,
 void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Output)
 {
     Output.P = Input.P * (*pM);
+    Output.TexCoord = Input.TexCoord;
 }
 
 void ListPoints(Canvas* pCanvas)
@@ -207,62 +221,98 @@ void Application::Update()
     auto pCanvas = m_DXGIManager.GetCanvas();
     static float hour = 8.0f;
     static float min = 20.0f;
-    //static float time = hour * 3600 + min * 60;
     static float time = hour * 3600 + min * 60;
     float phi = time * 3.141592;
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
-    Canvas* pTexture = nullptr;
-    if (m_pImage)
+    Canvas::VERTEX Triangle[] =
     {
-        //pTexture = Canvas::CreateCanvas(300, 300);
-        //pTexture->Shade(ShaderNoise);
+        {{300, 0, 0, 1}, {}, {0, 0, 0, 1}},
+        {{500, 300, 0, 1}, {}, {2, 0, 0, 1}},
+        {{0, 300, 0, 1}, {}, {0, 0.5f, 0, 1}},
+    };
 
-        pTexture = m_pImage->Clone();
-        pTexture->SetColorBorder({127, 127, 0, 0});
-        pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
+    Canvas::VERTEX HalfFlower[] =
+    {
+        {{0, 0, 0, 1}, {}, {0, 0, 0, 1}},
+        {{290, 0, 0, 1}, {}, {1, 0, 0, 1}},
+        {{0, 290, 0, 1}, {}, {0, 1, 0, 1}},
+    };
 
-        // Moviendo la textura al centro del canvas, utilizando transformaciones
-        VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
-        VECTOR4D HalfSize = Size * 0.5f;
-        VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
-        VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
+    Canvas::VERTEX HalfFlower2[] =
+    {
+        {{290, 0, 0, 1}, {}, {1, 0, 0, 1}},
+        {{290, 290, 0, 1}, {}, {1, 1, 0, 1}},
+        {{0, 290, 0, 1}, {}, {0, 1, 0, 1}},
+    };
 
-        //MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * Scaling(2.0f, 2.0f, 1.0f) * RotationZ(phi) * Translation(HalfScreenSize.x, HalfScreenSize.y, 0.0f);
-        MATRIX4D M = Scaling((ScreenSize.x / Size.x) * 0.5f, (ScreenSize.y / Size.y) * 0.5f, 1) * RotationZ(phi / 5); // Escalando para cubrir el área objetivo
-        //MATRIX4D M = Identity();
-        // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
-        // y no al canvas objetivo.
-        MATRIX4D MInv;
-        Inverse(M, MInv);
+    // Cargando las texturas a la geometría, recuerda definir el address mode que desees 
+    m_pTexture->SetAddressMode(Canvas::ADDRESS_MODE_WRAP);
+    //pCanvas->TextureInverseMapping(Triangle, m_pTexture);
+    pCanvas->TextureInverseMapping(HalfFlower, m_pTexture2);
 
-        // Optimizando
-        // p y q serán muestras i, j pero aplicando la multiplicación de matrices versión optimizada
-        // p = i*m00 + j*m10 + 0*m20 + 1*m30
-        // q = i*m01 + j*m11 + 0*m21 + 1*m31
+    // Aplicando transformaciones
+    m_pTexture2->SetAddressMode(Canvas::ADDRESS_MODE_WRAP);
+    Canvas::VERTEX Transformed[3];
+    MATRIX4D M = RotationZ(time) * Scaling(0.25f, 0.25f, 1) * Translation(m_nMouseX, m_nMouseY, 0);
+    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, HalfFlower, Transformed, 3);
+    pCanvas->TextureInverseMapping(Transformed, m_pTexture2);
 
-        float p, q;
+    // Enviando al canvas la otra mitad de la imagen
+    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, HalfFlower2, Transformed, 3);
+    pCanvas->TextureInverseMapping(Transformed, m_pTexture2);
 
-        for (int j = 0; j < pCanvas->GetSizeY(); j++)
-        {
-            p = j * MInv.m10 + MInv.m30;
-            q = j * MInv.m11 + MInv.m31;
-            
-            for (int i = 0; i < pCanvas->GetSizeX(); i++)
-            {
-                //VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
-                //VECTOR4D Output = Input * MInv;
-                //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floor(Output.y));
-                //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(p), (int)floor(q));
-                //(*pCanvas)(i, j) = pTexture->PointSampler(p, q);
-                (*pCanvas)(i, j) = pTexture->BilinearSampler(p, q);
-
-                p += MInv.m00;
-                q += MInv.m01;
-            }
-        }
-    }
+    // Canvas* pTexture = nullptr;
+    // if (m_pImage)
+    // {
+    //     //pTexture = Canvas::CreateCanvas(300, 300);
+    //     //pTexture->Shade(ShaderNoise);
+    //
+    //     pTexture = m_pImage->Clone();
+    //     pTexture->SetColorBorder({127, 127, 0, 0});
+    //     pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
+    //
+    //     // Moviendo la textura al centro del canvas, utilizando transformaciones
+    //     VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
+    //     VECTOR4D HalfSize = Size * 0.5f;
+    //     VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+    //     VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
+    //
+    //     //MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * Scaling(2.0f, 2.0f, 1.0f) * RotationZ(phi) * Translation(HalfScreenSize.x, HalfScreenSize.y, 0.0f);
+    //     MATRIX4D M = Scaling((ScreenSize.x / Size.x) * 0.5f, (ScreenSize.y / Size.y) * 0.5f, 1) * RotationZ(phi / 5); // Escalando para cubrir el área objetivo
+    //     //MATRIX4D M = Identity();
+    //     // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
+    //     // y no al canvas objetivo.
+    //     MATRIX4D MInv;
+    //     Inverse(M, MInv);
+    //
+    //     // Optimizando
+    //     // p y q serán muestras i, j pero aplicando la multiplicación de matrices versión optimizada
+    //     // p = i*m00 + j*m10 + 0*m20 + 1*m30
+    //     // q = i*m01 + j*m11 + 0*m21 + 1*m31
+    //
+    //     float p, q;
+    //
+    //     for (int j = 0; j < pCanvas->GetSizeY(); j++)
+    //     {
+    //         p = j * MInv.m10 + MInv.m30;
+    //         q = j * MInv.m11 + MInv.m31;
+    //         
+    //         for (int i = 0; i < pCanvas->GetSizeX(); i++)
+    //         {
+    //             //VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
+    //             //VECTOR4D Output = Input * MInv;
+    //             //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floor(Output.y));
+    //             //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(p), (int)floor(q));
+    //             //(*pCanvas)(i, j) = pTexture->PointSampler(p, q);
+    //             (*pCanvas)(i, j) = pTexture->BilinearSampler(p, q);
+    //
+    //             p += MInv.m00;
+    //             q += MInv.m01;
+    //         }
+    //     }
+    // }
 
 
     /*if (m_pImage)
@@ -350,13 +400,14 @@ void Application::Update()
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
     m_pLastFrame = pCanvas->Clone();
 
-    if (pTexture) Canvas::DestroyCanvas(pTexture);
+    //if (pTexture) Canvas::DestroyCanvas(pTexture);
+
     Canvas::DestroyCanvas(pCanvas);
     pSwapChain->Present(1, 0);
     time += 1.0f / 60;
 }
 
-void Application::KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam)
+void Application::Event(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
@@ -369,8 +420,12 @@ void Application::KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         case 'L':
             if (m_pImage) Canvas::DestroyCanvas(m_pImage);
-            m_pImage = Canvas::CreateCanvasFromFile("..\\Data\\teamwork8bpp.bmp", nullptr);
+            m_pImage = Canvas::CreateCanvasFromFile("..\\Data\\cascada24pbb", nullptr);
         }
+        break;
+    case WM_MOUSEMOVE:
+        m_nMouseX = LOWORD(lParam);
+        m_nMouseY = HIWORD(lParam);
         break;
     }
 }
