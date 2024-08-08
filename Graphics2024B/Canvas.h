@@ -25,11 +25,13 @@ public:
         PIXEL color;
     };
 
-    struct Vertex
+    enum AddressMode
     {
-        float x, y, z, w;
+        ADDRESS_MODE_BORDER,
+        ADDRESS_MODE_CLAMP,
+        ADDRESS_MODE_WRAP,
+        ADDRESS_MODE_MIRROR
     };
-
 protected:
     struct LIMIT
     {
@@ -41,6 +43,8 @@ protected:
     int m_nSizeY; // Tama�o vertical del canvas en p�xeles
     PIXEL* m_pBuffer; //Buffer de pixeles
     LIMIT* m_pLimits; //Buffer de limites de relleno
+    AddressMode m_AddressMode;
+    PIXEL m_BorderColor;
     Canvas();
     ~Canvas();
 
@@ -81,6 +85,10 @@ public:
     bool SaveCanvasToFile(const char* pszFileName);
     Canvas* Clone();
     static Canvas* CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixel)(PIXEL Color));
+
+    PIXEL Peek(int i, int j);
+    void SetAddressMode(AddressMode mode);
+    void SetColorBorder(PIXEL color);
 
     int GetWidth() const
     {

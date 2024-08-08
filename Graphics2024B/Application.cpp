@@ -108,6 +108,13 @@ void ShaderColors(Canvas::PIXEL* pDest,
         Canvas::Lerp(C, D, x >> 8), y >> 8);
 }
 
+void ShaderNoise(Canvas::PIXEL* pDest,
+                 int i, int j, int x, int y)
+{
+    unsigned char c = (unsigned char)rand();
+    *pDest = {c, c, c, c}; // Generamos un pixel en escala de grises, Aleatorio.
+}
+
 void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Output)
 {
     Output.P = Input.P * (*pM);
@@ -205,9 +212,38 @@ void Application::Update()
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
-    if(m_pImage)
-        for(int j = 0; j < m_pImage->GetSizeY(); j++)
-            for(int i = 0; i < m_pImage->GetSizeX(); i++)
+    Canvas* pTexture;
+    pTexture = Canvas::CreateCanvas(300, 300);
+    pTexture->Shade(ShaderNoise);
+    pTexture->SetColorBorder({127, 127, 0, 0});
+    pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
+
+    // Moviendo la textura al centro del canvas, utilizando transformaciones
+    VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
+    VECTOR4D HalfSize = Size * 0.5f;
+    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+    VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
+
+    MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * RotationZ(phi) * Translation(
+        HalfScreenSize.x, HalfScreenSize.y, 0.0f);
+    // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
+    // y no al canvas objetivo.
+    MATRIX4D MInv;
+    Inverse(M, MInv);
+
+    for (int j = 0; j < pCanvas->GetSizeY(); j++)
+    {
+        for (int i = 0; i < pCanvas->GetSizeX(); i++)
+        {
+            VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
+            VECTOR4D Output = Input * MInv;
+            (*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floorf(Output.y));
+        }
+    }
+
+    if (m_pImage)
+        for (int j = 0; j < m_pImage->GetSizeY(); j++)
+            for (int i = 0; i < m_pImage->GetSizeX(); i++)
                 (*pCanvas)(i, j) = (*m_pImage)(i, j);
 
     /*VECTOR4D O = {400, 400, 0, 1};
@@ -281,7 +317,7 @@ void Application::Update()
     */
     //StripTriangles(pCanvas);
 
-   // pCanvas->ResetLimits();
+    // pCanvas->ResetLimits();
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                            pCanvas->GetPitch());
@@ -290,6 +326,7 @@ void Application::Update()
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
     m_pLastFrame = pCanvas->Clone();
 
+    if (pTexture) Canvas::DestroyCanvas(pTexture);
     Canvas::DestroyCanvas(pCanvas);
     pSwapChain->Present(1, 0);
     time += 1.0f / 60;

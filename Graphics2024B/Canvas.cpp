@@ -7,6 +7,8 @@ Canvas::Canvas()
     m_nSizeX = 0;
     m_nSizeY = 0;
     m_pBuffer = 0;
+    m_AddressMode = ADDRESS_MODE_BORDER;
+    m_BorderColor = {0, 0, 0, 0};
 }
 
 Canvas::~Canvas()
@@ -594,4 +596,50 @@ Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixe
     delete[] pRowBuffer;
     in.close();
     return pCanvas;
+}
+
+Canvas::PIXEL Canvas::Peek(int i, int j)
+{
+    int p, q;
+    switch (m_AddressMode)
+    {
+    case ADDRESS_MODE_BORDER:
+        if (i >= 0 && i < m_nSizeX &&
+            j >= 0 && j < m_nSizeY)
+            return m_pBuffer[i + j * m_nSizeX];
+        else
+            return m_BorderColor;
+    case ADDRESS_MODE_CLAMP:
+        i = min(max(0,i), m_nSizeX - 1);
+        j = min(max(0,j), m_nSizeY - 1);
+        return m_pBuffer[i + j * m_nSizeX];
+    case ADDRESS_MODE_WRAP:
+        i %= m_nSizeX;
+        j %= m_nSizeY;
+        if (i < 0) i = m_nSizeX + i;
+        if (j < 0) j = m_nSizeY + j;
+        return m_pBuffer[i + j * m_nSizeX];
+    case ADDRESS_MODE_MIRROR:
+        p = i / m_nSizeX; // Observar en que repetición estoy, en i.
+        q = j / m_nSizeY;
+
+        i = abs(i % m_nSizeX); // Determinando que parte de la textura aplicar, sin signo.
+        j = abs(j % m_nSizeY);
+
+        i = (p & 1) ? (m_nSizeX - 1) - i : i; // Tomar la parte de la textura que toca, dependiendo el valor de p y q.
+        j = (q & 1) ? (m_nSizeY - 1) - j : j; // Valores pares muestran la textura en orientación normal, impares, en orientación espejo.
+        
+        return m_pBuffer[i + j * m_nSizeX];
+    }
+    return m_BorderColor;
+}
+
+void Canvas::SetAddressMode(AddressMode Mode)
+{
+    m_AddressMode = Mode;
+}
+
+void Canvas::SetColorBorder(PIXEL Color)
+{
+    m_BorderColor = Color;
 }

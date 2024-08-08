@@ -53,6 +53,8 @@ MATRIX4D operator*(const MATRIX4D& A, const MATRIX4D& B);
 VECTOR4D operator*(const VECTOR4D& V, const MATRIX4D& M);
 VECTOR4D operator+(const VECTOR4D& A, const VECTOR4D& B);
 VECTOR4D operator-(const VECTOR4D& A, const VECTOR4D& B);
+VECTOR4D operator*(const VECTOR4D& V, const float s);
+VECTOR4D operator*(const float s, const VECTOR4D& V);
 
 
 float Dot(const VECTOR4D& A,const VECTOR4D& B);
