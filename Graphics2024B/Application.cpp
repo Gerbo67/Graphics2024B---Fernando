@@ -17,6 +17,7 @@ Application::Application()
 {
     //Initialize application data!!!
     m_pLastFrame = nullptr;
+    m_pImage = nullptr;
 }
 
 Application::~Application()
@@ -65,6 +66,7 @@ bool Application::Initialize()
 bool Application::Uninitialize()
 {
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
+    if (m_pImage) Canvas::DestroyCanvas(m_pLastFrame);
     return true;
 }
 
@@ -203,6 +205,11 @@ void Application::Update()
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
+    if(m_pImage)
+        for(int j = 0; j < m_pImage->GetSizeY(); j++)
+            for(int i = 0; i < m_pImage->GetSizeX(); i++)
+                (*pCanvas)(i, j) = (*m_pImage)(i, j);
+
     /*VECTOR4D O = {400, 400, 0, 1};
     
     VECTOR4D P1 = {50, 100, 0, 1}; //posiciones en pantalla con la componente homogénea en 1
@@ -272,9 +279,9 @@ void Application::Update()
     StripLines(pCanvas);
     FanTriangles(pCanvas);
     */
-    StripTriangles(pCanvas);
+    //StripTriangles(pCanvas);
 
-    pCanvas->ResetLimits();
+   // pCanvas->ResetLimits();
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                            pCanvas->GetPitch());
@@ -299,6 +306,9 @@ void Application::KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam)
             if (m_pLastFrame)
                 m_pLastFrame->SaveCanvasToFile("..\\Data\\Save.bmp");
             break;
+        case 'L':
+            if (m_pImage) Canvas::DestroyCanvas(m_pImage);
+            m_pImage = Canvas::CreateCanvasFromFile("..\\Data\\teamwork8bpp.bmp", nullptr);
         }
         break;
     }

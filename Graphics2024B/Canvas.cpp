@@ -492,3 +492,106 @@ Canvas* Canvas::Clone()
     memcpy(pCanvas->m_pBuffer, m_pBuffer, m_nSizeX * m_nSizeY * sizeof(PIXEL));
     return pCanvas;
 }
+
+Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixel)(PIXEL Color))
+{
+    // Cargar nuestro canvas en formato de 8bpp y 24bpp, sin compresión
+    fstream in;
+
+    in.open(pszFileName, ios::in | ios::binary);
+    if (!in.is_open())
+        return nullptr;
+
+    // Creación de las estructuras para manejo del dib
+    BITMAPFILEHEADER bfh;
+    BITMAPINFOHEADER bih;
+
+    memset(&bfh, 0, sizeof(bfh));
+    memset(&bih, 0, sizeof(bih));
+
+    // Leer los encabezados del archivo
+    in.read((char*)&bfh, sizeof(bfh));
+
+    // Validar que el archivo que estamos procesandoes un archivo dip, bitmap
+    if (bfh.bfType != 'MB')
+        return nullptr;
+
+    // Leer los encabezados de la imagen
+    in.read((char*)&bih, sizeof(bih));
+    if (bih.biSize != sizeof(bih))
+        return nullptr;
+
+    // Computo de rowlength
+    // 10*1, 10*24 + 31 = 241 + 31 = 271 / 32 = 8 * 4 = 32 bytes almacenamiento en disco
+    int nRowLength = ((bih.biWidth * bih.biBitCount + 31) / 32) * 4;
+
+    // Cargar la paleta segun aplique
+    RGBQUAD palette[256];
+    int nColorsToRead = 0;
+
+    switch (bih.biBitCount)
+    {
+    case 1:
+    case 4:
+    case 8:
+        // Construir y guardar la paleta
+        nColorsToRead = bih.biClrUsed ? bih.biClrUsed : (1 << bih.biBitCount);
+        break;
+    }
+    in.read((char*)&palette, nColorsToRead * sizeof(RGBQUAD));
+
+    // Cargar la imagen
+    Canvas* pCanvas = CreateCanvas(bih.biWidth, bih.biHeight);
+
+    char* pRowBuffer = new char[nRowLength]; // Buffer de lectura linea por linea del archivo
+    memset(pRowBuffer, 0, nRowLength);
+    switch (bih.biBitCount)
+    {
+    case 8:
+        for (int j = bih.biHeight - 1; j >= 0; j--)
+        {
+            PIXEL* pDest = &(*pCanvas)(0, j);
+            unsigned char* pDecode = (unsigned char*)pRowBuffer;
+            in.read((char*)pRowBuffer, nRowLength);
+            for (int i = 0; i < bih.biWidth; i++)
+            {
+                pDest->r = palette[*pDecode].rgbRed;
+                pDest->g = palette[*pDecode].rgbGreen;
+                pDest->b = palette[*pDecode].rgbBlue;
+                pDest->a = 0xFF;
+
+                if (pfLoadPixel)
+                    *pDest = pfLoadPixel(*pDest);
+
+                pDecode++;
+                pDest++;
+            }
+        }
+        break;
+    case 24:
+        for (int j = bih.biHeight - 1; j >= 0; j--)
+        {
+            PIXEL* pDest = &(*pCanvas)(0, j);
+            RGBTRIPLE* pDecode = (RGBTRIPLE*)pRowBuffer;
+            in.read((char*)pRowBuffer, nRowLength);
+            for (int i = 0; i < bih.biWidth; i++)
+            {
+                pDest->r = pDecode->rgbtRed;
+                pDest->g = pDecode->rgbtGreen;
+                pDest->b = pDecode->rgbtBlue;
+                pDest->a = 0xFF;
+
+                if (pfLoadPixel)
+                    *pDest = pfLoadPixel(*pDest);
+
+                pDecode++;
+                pDest++;
+            }
+        }
+        break;
+    }
+
+    delete[] pRowBuffer;
+    in.close();
+    return pCanvas;
+}

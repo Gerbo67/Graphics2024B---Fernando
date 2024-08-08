@@ -13,9 +13,6 @@
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Application.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Application.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/Canvas.h" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Canvas.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/Data/Fondo24bpp.bmp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/Data/cascada24pbb.bmp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/Graphics2024B.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/Graphics2024B.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Application.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Canvas.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/DXGIManager.obj" afterDir="false" />
@@ -24,7 +21,6 @@
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.command.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.read.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/CL.write.1.tlog" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/link.read.1.tlog" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Graphics2024B.tlog/link.read.1.tlog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Matrix4D.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/Matrix4D.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.idb" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.idb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/Graphics2024B/x64/Debug/vc143.pdb" afterDir="false" />
@@ -38,6 +34,54 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -136,7 +180,8 @@
       <updated>1721624807634</updated>
       <workItem from="1721624809244" duration="67000" />
       <workItem from="1722302055465" duration="2826000" />
-      <workItem from="1722461124421" duration="13447000" />
+      <workItem from="1722461124421" duration="14757000" />
+      <workItem from="1723082544750" duration="7450000" />
     </task>
     <servers />
   </component>
@@ -146,5 +191,16 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Graphics2024B/Application.cpp</url>
+          <line>310</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

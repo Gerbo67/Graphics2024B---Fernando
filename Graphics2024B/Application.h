@@ -14,6 +14,7 @@ public:
 	static Application* GetApplication();
 	Canvas* m_pLastFrame;
 	void KeyEvent(UINT msg, WPARAM wParam, LPARAM lParam);
+	Canvas* m_pImage;
 protected:
 	static Application* sm_pApp;
 	Application();
