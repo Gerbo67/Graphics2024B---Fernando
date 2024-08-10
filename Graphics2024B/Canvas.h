@@ -95,14 +95,4 @@ public:
     PIXEL BilinearSampler(float s, float t);
     
     void TextureInverseMapping(const VERTEX V[3], Canvas* pTexture);
-
-    int GetWidth() const
-    {
-        return m_nSizeX;
-    }
-
-    int GetHeight() const
-    {
-        return m_nSizeY;
-    }
 };
