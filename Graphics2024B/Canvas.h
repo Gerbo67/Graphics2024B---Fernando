@@ -1,4 +1,5 @@
 #pragma once
+#include "Application.h"
 #include "Matrix4D.h"
 
 class Canvas
@@ -76,6 +77,7 @@ public:
     typedef void (*VERTEXSHADER)(void* ctx, VERTEX& Input, VERTEX& Output);
     static void VertexProcessor(void* ctx, VERTEXSHADER pVS, VERTEX* pInput, VERTEX* pOutput, int nVertices);
 
+    void DrawQuad(VERTEX* pVertex, PIXEL color);
     void DrawTriangleList(VERTEX* pVertex, int nVertices, PIXEL color);
     void DrawPointList(VERTEX* pVertex, int nVertices);
     void DrawLineList(VERTEX* pVertex, int nVertices);
@@ -86,6 +88,7 @@ public:
     bool SaveCanvasToFile(const char* pszFileName);
     Canvas* Clone();
     static Canvas* CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixel)(PIXEL Color));
+    static int CalculateShift(DWORD mask);
 
     PIXEL Peek(int i, int j);
     void SetAddressMode(AddressMode mode);
@@ -95,4 +98,5 @@ public:
     PIXEL BilinearSampler(float s, float t);
     
     void TextureInverseMapping(const VERTEX V[3], Canvas* pTexture);
+    void TextureMappingQuad(const VERTEX V[4], Canvas* pTexture);
 };

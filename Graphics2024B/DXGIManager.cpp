@@ -16,8 +16,8 @@ IDXGIAdapter* DXGIManager::ChooseAdapter()
 		DXGI_ADAPTER_DESC dad;
 		pAdapter->GetDesc(&dad);
 		WCHAR szMessage[1024];
-		wsprintf(szMessage, L"Descripción %s", dad.Description);
-		switch (MessageBox(NULL, szMessage, L"¿Desea usar el siguiente adaptador?", MB_YESNOCANCEL))
+		wsprintf(szMessage, L"DescripciÃ³n %s", dad.Description);
+		switch (MessageBox(NULL, szMessage, L"Â¿Desea usar el siguiente adaptador?", MB_YESNOCANCEL))
 		{
 		case IDYES:
 			pFactory->Release();
@@ -80,9 +80,9 @@ void DXGIManager::SendData(void* pBuffer, unsigned int pitch)
 	dsd.pSysMem = pBuffer;
 	dsd.SysMemPitch = pitch;
 	dsd.SysMemSlicePitch = 0;
-	/* Transferir información desde el buffer de usuario al buffer de kernel */
+	/* Transferir informaciÃ³n desde el buffer de usuario al buffer de kernel */
 	m_pDev->CreateTexture2D(&dtd, &dsd, &pStaging);
-	/* Transferir información desde la memoria de kernel a dispositivo */
+	/* Transferir informaciÃ³n desde la memoria de kernel a dispositivo */
 	if (pBackbuffer && pStaging)
 		m_pCtx->CopyResource(pBackbuffer, pStaging);
 	if (pStaging)

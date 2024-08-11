@@ -18,8 +18,18 @@ Application::Application()
     //Initialize application data!!!
     m_pLastFrame = nullptr;
     m_pImage = nullptr;
-    m_pTexture = nullptr;
-    m_pTexture2 = nullptr;
+    m_pImage = nullptr;
+
+    m_pSun = nullptr;
+    m_pMercury = nullptr;
+    m_pVenus = nullptr;
+    m_pEarth = nullptr;
+    m_pMars = nullptr;
+    m_pJupiter = nullptr;
+    m_pSaturn = nullptr;
+    m_pUranus = nullptr;
+    m_pNeptune = nullptr;
+    m_pPluto = nullptr;
     m_nMouseX = m_nMouseY = 0;
 }
 
@@ -64,13 +74,20 @@ bool Application::Initialize()
     else
         return false;
     // Cargando texturas
-    m_pTexture = Canvas::CreateCanvasFromFile("..\\Data\\Fondo24bpp.bmp", nullptr);
-    if (!m_pTexture)
+    m_pSun = Canvas::CreateCanvasFromFile("..\\Data\\sol.bmp", nullptr);
+    m_pMercury = Canvas::CreateCanvasFromFile("..\\Data\\mercurio.bmp", nullptr);
+    m_pVenus = Canvas::CreateCanvasFromFile("..\\Data\\venus.bmp", nullptr);
+    m_pEarth = Canvas::CreateCanvasFromFile("..\\Data\\tierra.bmp", nullptr);
+    m_pMars = Canvas::CreateCanvasFromFile("..\\Data\\marte.bmp", nullptr);
+    m_pJupiter = Canvas::CreateCanvasFromFile("..\\Data\\jupiter.bmp", nullptr);
+    m_pSaturn = Canvas::CreateCanvasFromFile("..\\Data\\saturno.bmp", nullptr);
+    m_pUranus = Canvas::CreateCanvasFromFile("..\\Data\\urano.bmp", nullptr);
+    m_pNeptune = Canvas::CreateCanvasFromFile("..\\Data\\neptuno.bmp", nullptr);
+    m_pPluto = Canvas::CreateCanvasFromFile("..\\Data\\pluton.bmp", nullptr);
+    if (!m_pSun || !m_pMercury || !m_pEarth || !m_pMars || !m_pJupiter || !m_pSaturn || !m_pUranus || !m_pNeptune || !
+        m_pPluto)
         return false;
 
-    m_pTexture2 = Canvas::CreateCanvasFromFile("..\\Data\\flower24bpp.bmp", nullptr);
-    if (!m_pTexture2)
-        return false;
     return true;
 }
 
@@ -78,24 +95,79 @@ bool Application::Uninitialize()
 {
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
     if (m_pImage) Canvas::DestroyCanvas(m_pLastFrame);
-    if (m_pTexture) Canvas::DestroyCanvas(m_pTexture);
-    if (m_pTexture2) Canvas::DestroyCanvas(m_pTexture2);
+    if (m_pSun) Canvas::DestroyCanvas(m_pSun);
+    if (m_pMercury) Canvas::DestroyCanvas(m_pMercury);
+    if (m_pEarth) Canvas::DestroyCanvas(m_pEarth);
+    if (m_pMars) Canvas::DestroyCanvas(m_pMars);
+    if (m_pJupiter) Canvas::DestroyCanvas(m_pJupiter);
+    if (m_pSaturn) Canvas::DestroyCanvas(m_pSaturn);
+    if (m_pUranus) Canvas::DestroyCanvas(m_pUranus);
+    if (m_pNeptune) Canvas::DestroyCanvas(m_pNeptune);
+    if (m_pPluto) Canvas::DestroyCanvas(m_pPluto);
     return true;
 }
 
-void ShaderCircle(Canvas::PIXEL* pDest, int i, int j,
-                  int unused_x, int unused_y)
+void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Output)
 {
-    /* r^2 > (yc-y)^2 + (xc-x)^2 */
-    int x, y, r = 100 * 100;
-    x = 400 - i;
-    y = 400 - j;
-    x *= x;
-    y *= y;
-    if (r > (x + y))
-        *pDest = {255, 255, 255, 0};
-    else
-        *pDest = {255, 0, 0, 0};
+    Output.P = Input.P * (*pM);
+    Output.TexCoord = Input.TexCoord;
+}
+
+void RotateAndDrawQuads(Canvas* pCanvas, int distance, float phi, Canvas::VERTEX Squad[], Canvas* textures[],
+                        int numTextures, int currentTextureIndex)
+{
+    Canvas::PIXEL color = Canvas::PIXEL({0, 0, 0, 0});
+    // Obtén las dimensiones de la pantalla
+    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+
+    // Gracias a la función "RotateAndDrawMultipleQuads", ahora podemos controlar la distancia desde la "distance"
+    VECTOR4D translation = {(float)distance, 0, 0, 0};
+
+    // Crea una matriz de transformación:
+    // 1. Traslada el cuadrado al centro de la pantalla.
+    // 2. Aplica la rotación.
+    // 3. Traslada el cuadrado con la distancia hacia la ubicación final del cuadrado.
+    // Cambio realizado: ajustar la secuencia de transformación para rotar correctamente los cuadrados alrededor del centro de la pantalla
+    MATRIX4D M = Translation(translation.x, translation.y, 0) *
+        RotationZ(phi / distance) *
+        Translation(ScreenSize.x / 2, ScreenSize.y / 2, 0);
+
+    // Procesa los vértices con la matriz de transformación
+    Canvas::VERTEX Transformed[4];
+    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, Squad, Transformed, 4);
+
+    // Dibuja el cuadrado utilizando un listado de triángulos (dos triángulos que forman el cuadrado)
+    pCanvas->DrawQuad(Transformed, color);
+    pCanvas->TextureMappingQuad(Transformed, textures[currentTextureIndex % numTextures]);
+}
+
+void DrawMultipleCircles(Canvas* pCanvas, int xc, int yc, int initialRadius, int nCircles, int radiusIncrement,
+                         Canvas::PIXEL color, float phi, Canvas* textures[], int numTextures)
+{
+    Canvas::VERTEX Squad[] = {
+        {{-20, -20, 0, 1}, color, {0, 0, 0, 1}},
+        {{20, -20, 0, 1}, color, {1, 0, 0, 1}},
+        {{20, 20, 0, 1}, color, {1, 1, 0, 1}},
+        {{-20, 20, 0, 1}, color, {0, 1, 0, 1}},
+    };
+
+    for (int i = 0; i < nCircles; ++i)
+    {
+        int newRadius = initialRadius + (i * radiusIncrement);
+        pCanvas->Circle(xc, yc, newRadius, color);
+        // gira los cuadrados en cada círculo
+        RotateAndDrawQuads(pCanvas, newRadius, ((2 * phi) / (newRadius + 1)), Squad, textures, numTextures, i);
+    }
+
+    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+
+    MATRIX4D M = Translation(ScreenSize.x / 2, ScreenSize.y / 2, 0);
+    Canvas::VERTEX Transformed[4];
+    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, Squad, Transformed, 4);
+
+    // Dibuja el cuadrado utilizando un listado de triángulos (dos triángulos que forman el cuadrado)
+    pCanvas->DrawQuad(Transformed, Canvas::PIXEL({0, 0, 0, 0}));
+    pCanvas->TextureMappingQuad(Transformed, textures[9]);
 }
 
 void ShaderChess(Canvas::PIXEL* pDest,
@@ -126,12 +198,6 @@ void ShaderNoise(Canvas::PIXEL* pDest,
 {
     unsigned char c = (unsigned char)rand();
     *pDest = {c, c, c, c}; // Generamos un pixel en escala de grises, Aleatorio.
-}
-
-void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Output)
-{
-    Output.P = Input.P * (*pM);
-    Output.TexCoord = Input.TexCoord;
 }
 
 void ListPoints(Canvas* pCanvas)
@@ -222,179 +288,22 @@ void Application::Update()
     static float hour = 8.0f;
     static float min = 20.0f;
     static float time = hour * 3600 + min * 60;
-    float phi = time * 3.141592;
+    float scale = 1000.0;
+    float phi = scale * time * 3.141592;
     float theta = 2 * 3.141592 * time;
     pCanvas->Clear({0, 0, 0, 0});
 
-    Canvas::VERTEX Triangle[] =
-    {
-        {{300, 0, 0, 1}, {}, {0, 0, 0, 1}},
-        {{500, 300, 0, 1}, {}, {2, 0, 0, 1}},
-        {{0, 300, 0, 1}, {}, {0, 0.5f, 0, 1}},
+    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+    Canvas* planetTextures[] = {
+        m_pMercury, m_pVenus, m_pEarth, m_pMars, m_pJupiter, m_pSaturn, m_pUranus, m_pNeptune, m_pPluto, m_pSun
     };
+    DrawMultipleCircles(pCanvas, ScreenSize.x / 2, ScreenSize.y / 2, 60, 9, 45, Canvas::PIXEL({255, 255, 255, 0}), phi,
+                        planetTextures, 10);
 
-    Canvas::VERTEX HalfFlower[] =
-    {
-        {{0, 0, 0, 1}, {}, {0, 0, 0, 1}},
-        {{290, 0, 0, 1}, {}, {1, 0, 0, 1}},
-        {{0, 290, 0, 1}, {}, {0, 1, 0, 1}},
-    };
-
-    Canvas::VERTEX HalfFlower2[] =
-    {
-        {{290, 0, 0, 1}, {}, {1, 0, 0, 1}},
-        {{290, 290, 0, 1}, {}, {1, 1, 0, 1}},
-        {{0, 290, 0, 1}, {}, {0, 1, 0, 1}},
-    };
-
-    // Cargando las texturas a la geometría, recuerda definir el address mode que desees 
-    m_pTexture->SetAddressMode(Canvas::ADDRESS_MODE_WRAP);
-    //pCanvas->TextureInverseMapping(Triangle, m_pTexture);
-    pCanvas->TextureInverseMapping(HalfFlower, m_pTexture2);
-
-    // Aplicando transformaciones
-    m_pTexture2->SetAddressMode(Canvas::ADDRESS_MODE_WRAP);
-    Canvas::VERTEX Transformed[3];
-    MATRIX4D M = RotationZ(time) * Scaling(0.25f, 0.25f, 1) * Translation(m_nMouseX, m_nMouseY, 0);
-    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, HalfFlower, Transformed, 3);
-    pCanvas->TextureInverseMapping(Transformed, m_pTexture2);
-
-    // Enviando al canvas la otra mitad de la imagen
-    Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, HalfFlower2, Transformed, 3);
-    pCanvas->TextureInverseMapping(Transformed, m_pTexture2);
-
-    // Canvas* pTexture = nullptr;
-    // if (m_pImage)
-    // {
-    //     //pTexture = Canvas::CreateCanvas(300, 300);
-    //     //pTexture->Shade(ShaderNoise);
-    //
-    //     pTexture = m_pImage->Clone();
-    //     pTexture->SetColorBorder({127, 127, 0, 0});
-    //     pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
-    //
-    //     // Moviendo la textura al centro del canvas, utilizando transformaciones
-    //     VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
-    //     VECTOR4D HalfSize = Size * 0.5f;
-    //     VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
-    //     VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
-    //
-    //     //MATRIX4D M = Translation(-HalfSize.x, -HalfSize.y, 0.0f) * Scaling(2.0f, 2.0f, 1.0f) * RotationZ(phi) * Translation(HalfScreenSize.x, HalfScreenSize.y, 0.0f);
-    //     MATRIX4D M = Scaling((ScreenSize.x / Size.x) * 0.5f, (ScreenSize.y / Size.y) * 0.5f, 1) * RotationZ(phi / 5); // Escalando para cubrir el área objetivo
-    //     //MATRIX4D M = Identity();
-    //     // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
-    //     // y no al canvas objetivo.
-    //     MATRIX4D MInv;
-    //     Inverse(M, MInv);
-    //
-    //     // Optimizando
-    //     // p y q serán muestras i, j pero aplicando la multiplicación de matrices versión optimizada
-    //     // p = i*m00 + j*m10 + 0*m20 + 1*m30
-    //     // q = i*m01 + j*m11 + 0*m21 + 1*m31
-    //
-    //     float p, q;
-    //
-    //     for (int j = 0; j < pCanvas->GetSizeY(); j++)
-    //     {
-    //         p = j * MInv.m10 + MInv.m30;
-    //         q = j * MInv.m11 + MInv.m31;
-    //         
-    //         for (int i = 0; i < pCanvas->GetSizeX(); i++)
-    //         {
-    //             //VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
-    //             //VECTOR4D Output = Input * MInv;
-    //             //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floor(Output.y));
-    //             //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(p), (int)floor(q));
-    //             //(*pCanvas)(i, j) = pTexture->PointSampler(p, q);
-    //             (*pCanvas)(i, j) = pTexture->BilinearSampler(p, q);
-    //
-    //             p += MInv.m00;
-    //             q += MInv.m01;
-    //         }
-    //     }
-    // }
-
-
-    /*if (m_pImage)
-        for (int j = 0; j < m_pImage->GetSizeY(); j++)
-            for (int i = 0; i < m_pImage->GetSizeX(); i++)
-                (*pCanvas)(i, j) = (*m_pImage)(i, j);*/
-
-    /*VECTOR4D O = {400, 400, 0, 1};
-    
-    VECTOR4D P1 = {50, 100, 0, 1}; //posiciones en pantalla con la componente homogénea en 1
-    VECTOR4D V1 = {5, 6, 0, 0}; //vector con la componente homogénea en 0
-    VECTOR4D V2 = {100, 100, 0, 0};
-
-    VECTOR4D VR = V1 + V2;
-    VECTOR4D P1P = P1 + V1;
-    //OPERACIÓN NO VÁLIDA, ES SUMAR UN PUNTO A OTRO PUNTO, GENERA UNA COMPONENTE HOMOGÉNEA INVÁLIDA.
-
-    VECTOR4D P2 = O + V2;
-
-    MATRIX4D T0 = Translation(100, 100, 0);
-    MATRIX4D R0 = RotationZ(theta);
-    MATRIX4D R1 = RotationZ(theta / 60);
-    MATRIX4D R2 = RotationZ(theta / 3600);
-    VECTOR4D P1T = P1P * T0;
-    VECTOR4D V2T = V2 * T0;
-    VECTOR4D V2R = V2 * R0;
-    VECTOR4D P2R = P2 - O;
-    VECTOR4D P2R1 = P2 - O;
-    VECTOR4D P2R2 = P2 - O;
-
-    P2R = P2R * R0;
-    P2R1 = P2R1 * R1;
-    P2R = P2R + O;
-    P2R1 = P2R1 + O;
-    P2R2 = P2R2 * R2;
-    P2R2 = P2R2 + O;
-    
-    pCanvas->Line(O.x, O.y, P2.x, P2.y, {255,255,255,0});
-    pCanvas->Line(O.x, O.y, P2R.x, P2R.y, {255,0,0,0});
-    pCanvas->Line(O.x, O.y, P2R1.x, P2R1.y, {0,255,0,0});
-    pCanvas->Line(O.x, O.y, P2R2.x, P2R2.y, {0,0,255,0});
-    */
-
-    /*pCanvas->CircleLimits(200, 200, 100);
-      pCanvas->FillLimits(ShaderChess);
-      pCanvas->ResetLimits();
-      pCanvas->CircleLimits(400, 200, 100);
-      pCanvas->FillLimits(ShaderColors);
-      */
-
-    /*
-    Canvas::VERTEX tri[] =
-    {
-        {{0,1,0,1}},
-        {{1,-1,0,1}},
-        {{-1,-1,0,1}}
-    };
-
-    Canvas::VERTEX OutputTri[3];
-
-    MATRIX4D ST = Scaling(200, 200, 1) * RotationZ(theta) * Translation(600, 400, 0);
-    Canvas::VertexProcessor(&ST, (Canvas::VERTEXSHADER)VertexShaderSimple, tri, OutputTri, 3);
-    
-    
-    pCanvas->ResetLimits();
-
-    pCanvas->DrawTriangleList(OutputTri, 3, {255, 255, 255, 0});
-    */
-    /*
-    pCanvas->ResetLimits();
-    
-    ListPoints(pCanvas);
-    ListLine(pCanvas, time);
-    StripLines(pCanvas);
-    FanTriangles(pCanvas);
-    */
-    //StripTriangles(pCanvas);
-
-    // pCanvas->ResetLimits();
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                            pCanvas->GetPitch());
+
 
     // Almacenamos el último frame
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);
@@ -420,7 +329,7 @@ void Application::Event(UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         case 'L':
             if (m_pImage) Canvas::DestroyCanvas(m_pImage);
-            m_pImage = Canvas::CreateCanvasFromFile("..\\Data\\cascada24pbb", nullptr);
+            m_pImage = Canvas::CreateCanvasFromFile("..\\Data\\pluton.bmp", nullptr);
         }
         break;
     case WM_MOUSEMOVE:

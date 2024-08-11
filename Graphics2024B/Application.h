@@ -15,8 +15,16 @@ public:
 	Canvas* m_pLastFrame;
 	void Event(UINT msg, WPARAM wParam, LPARAM lParam);
 	Canvas* m_pImage;
-	Canvas* m_pTexture;
-	Canvas* m_pTexture2;
+	Canvas* m_pSun;
+	Canvas* m_pMercury;
+	Canvas* m_pVenus;
+	Canvas* m_pEarth;
+	Canvas* m_pMars;
+	Canvas* m_pJupiter;
+	Canvas* m_pSaturn;
+	Canvas* m_pUranus;
+	Canvas* m_pNeptune;
+	Canvas* m_pPluto;
 	int m_nMouseX;
 	int m_nMouseY;
 protected:

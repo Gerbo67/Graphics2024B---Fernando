@@ -343,6 +343,17 @@ void Canvas::VertexProcessor(void* ctx, VERTEXSHADER pVS, VERTEX* pInput, VERTEX
     }
 }
 
+void Canvas::DrawQuad(VERTEX* pVertex, PIXEL color)
+{
+    // Lineas horizontales
+    Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[1].P.x, pVertex[1].P.y, color);
+    Line(pVertex[2].P.x, pVertex[2].P.y, pVertex[3].P.x, pVertex[3].P.y, color);
+
+    // Lineas verticales
+    Line(pVertex[0].P.x, pVertex[0].P.y, pVertex[3].P.x, pVertex[3].P.y, color);
+    Line(pVertex[1].P.x, pVertex[1].P.y, pVertex[2].P.x, pVertex[2].P.y, color);
+}
+
 void Canvas::DrawTriangleList(VERTEX* pVertex, int nVertices, PIXEL color)
 {
     for (int i = 0; i < nVertices; i += 3)
@@ -502,7 +513,18 @@ Canvas* Canvas::Clone()
     return pCanvas;
 }
 
-Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPositionixel)(PIXEL color))
+ int Canvas::CalculateShift(DWORD mask)
+ {
+    if (mask == 0) return 0;
+    int shift = 0;
+    while ((mask & 1) == 0) {
+        mask >>= 1;
+        shift++;
+    }
+    return shift;
+ }
+
+Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPixel)(PIXEL Color))
 {
     // Cargar nuestro canvas en formato de 8bpp y 24bpp, sin compresión
     fstream in;
@@ -569,8 +591,8 @@ Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPosi
                 pDest->b = palette[*pDecode].rgbBlue;
                 pDest->a = 0xFF;
 
-                if (pfLoadPositionixel)
-                    *pDest = pfLoadPositionixel(*pDest);
+                if (pfLoadPixel)
+                    *pDest = pfLoadPixel(*pDest);
 
                 pDecode++;
                 pDest++;
@@ -590,8 +612,8 @@ Canvas* Canvas::CreateCanvasFromFile(const char* pszFileName, PIXEL (*pfLoadPosi
                 pDest->b = pDecode->rgbtBlue;
                 pDest->a = 0xFF;
 
-                if (pfLoadPositionixel)
-                    *pDest = pfLoadPositionixel(*pDest);
+                if (pfLoadPixel)
+                    *pDest = pfLoadPixel(*pDest);
 
                 pDecode++;
                 pDest++;
@@ -779,3 +801,16 @@ void Canvas::TextureInverseMapping(const VERTEX V[3], Canvas* pTexture)
         pLine += m_nSizeX;
     }
 }
+
+void Canvas::TextureMappingQuad(const VERTEX V[4], Canvas* pTexture)
+{
+    // Definir las dos mitades del cuadrado como dos triángulos
+    VERTEX Triangle1[] = {V[0], V[1], V[2]};
+    VERTEX Triangle2[] = {V[0], V[2], V[3]};
+
+    // Llamar a la función de mapeo para cada triángulo
+    TextureInverseMapping(Triangle1, pTexture);
+    TextureInverseMapping(Triangle2, pTexture);
+}
+
+
