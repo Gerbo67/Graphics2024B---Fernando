@@ -15,6 +15,7 @@ public:
 	Canvas* m_pLastFrame;
 	void Event(UINT msg, WPARAM wParam, LPARAM lParam);
 	Canvas* m_pImage;
+	Canvas* m_pUniverse;
 	Canvas* m_pSun;
 	Canvas* m_pMercury;
 	Canvas* m_pVenus;

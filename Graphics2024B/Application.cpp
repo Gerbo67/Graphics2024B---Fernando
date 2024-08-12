@@ -20,6 +20,7 @@ Application::Application()
     m_pImage = nullptr;
     m_pImage = nullptr;
 
+    m_pUniverse = nullptr;
     m_pSun = nullptr;
     m_pMercury = nullptr;
     m_pVenus = nullptr;
@@ -74,18 +75,19 @@ bool Application::Initialize()
     else
         return false;
     // Cargando texturas
-    m_pSun = Canvas::CreateCanvasFromFile("..\\Data\\sol.bmp", nullptr);
-    m_pMercury = Canvas::CreateCanvasFromFile("..\\Data\\mercurio.bmp", nullptr);
+    m_pUniverse = Canvas::CreateCanvasFromFile("..\\Data\\universe.bmp", nullptr);
+    m_pSun = Canvas::CreateCanvasFromFile("..\\Data\\sun.bmp", nullptr);
+    m_pMercury = Canvas::CreateCanvasFromFile("..\\Data\\mercury.bmp", nullptr);
     m_pVenus = Canvas::CreateCanvasFromFile("..\\Data\\venus.bmp", nullptr);
-    m_pEarth = Canvas::CreateCanvasFromFile("..\\Data\\tierra.bmp", nullptr);
-    m_pMars = Canvas::CreateCanvasFromFile("..\\Data\\marte.bmp", nullptr);
+    m_pEarth = Canvas::CreateCanvasFromFile("..\\Data\\earth.bmp", nullptr);
+    m_pMars = Canvas::CreateCanvasFromFile("..\\Data\\mars.bmp", nullptr);
     m_pJupiter = Canvas::CreateCanvasFromFile("..\\Data\\jupiter.bmp", nullptr);
-    m_pSaturn = Canvas::CreateCanvasFromFile("..\\Data\\saturno.bmp", nullptr);
-    m_pUranus = Canvas::CreateCanvasFromFile("..\\Data\\urano.bmp", nullptr);
-    m_pNeptune = Canvas::CreateCanvasFromFile("..\\Data\\neptuno.bmp", nullptr);
-    m_pPluto = Canvas::CreateCanvasFromFile("..\\Data\\pluton.bmp", nullptr);
+    m_pSaturn = Canvas::CreateCanvasFromFile("..\\Data\\saturn.bmp", nullptr);
+    m_pUranus = Canvas::CreateCanvasFromFile("..\\Data\\uranus.bmp", nullptr);
+    m_pNeptune = Canvas::CreateCanvasFromFile("..\\Data\\neptune.bmp", nullptr);
+    m_pPluto = Canvas::CreateCanvasFromFile("..\\Data\\pluto.bmp", nullptr);
     if (!m_pSun || !m_pMercury || !m_pEarth || !m_pMars || !m_pJupiter || !m_pSaturn || !m_pUranus || !m_pNeptune || !
-        m_pPluto)
+        m_pPluto || !m_pUniverse)
         return false;
 
     return true;
@@ -113,61 +115,97 @@ void VertexShaderSimple(MATRIX4D* pM, Canvas::VERTEX& Input, Canvas::VERTEX& Out
     Output.TexCoord = Input.TexCoord;
 }
 
-void RotateAndDrawQuads(Canvas* pCanvas, int distance, float phi, Canvas::VERTEX Squad[], Canvas* textures[],
-                        int numTextures, int currentTextureIndex)
+// Aplica las transformaciones necesarias a los vértices
+void ApplyVertexTransforms(Canvas* pCanvas, float distance, float phi, Canvas::VERTEX Squad[],
+                           Canvas::VERTEX Transformed[])
 {
+    // Define color del pixel
     Canvas::PIXEL color = Canvas::PIXEL({0, 0, 0, 0});
-    // Obtén las dimensiones de la pantalla
+    // Obtén las dimensiones de la screen
     VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
-
-    // Gracias a la función "RotateAndDrawMultipleQuads", ahora podemos controlar la distancia desde la "distance"
+    // Define la traslación basada en la distancia
     VECTOR4D translation = {(float)distance, 0, 0, 0};
-
-    // Crea una matriz de transformación:
-    // 1. Traslada el cuadrado al centro de la pantalla.
-    // 2. Aplica la rotación.
-    // 3. Traslada el cuadrado con la distancia hacia la ubicación final del cuadrado.
-    // Cambio realizado: ajustar la secuencia de transformación para rotar correctamente los cuadrados alrededor del centro de la pantalla
+    // Crea una matriz de transformación
     MATRIX4D M = Translation(translation.x, translation.y, 0) *
         RotationZ(phi / distance) *
         Translation(ScreenSize.x / 2, ScreenSize.y / 2, 0);
-
     // Procesa los vértices con la matriz de transformación
-    Canvas::VERTEX Transformed[4];
     Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, Squad, Transformed, 4);
-
-    // Dibuja el cuadrado utilizando un listado de triángulos (dos triángulos que forman el cuadrado)
-    pCanvas->DrawQuad(Transformed, color);
-    pCanvas->TextureMappingQuad(Transformed, textures[currentTextureIndex % numTextures]);
 }
 
-void DrawMultipleCircles(Canvas* pCanvas, int xc, int yc, int initialRadius, int nCircles, int radiusIncrement,
-                         Canvas::PIXEL color, float phi, Canvas* textures[], int numTextures)
+// Dibuja un cuadrado y aplica mapeo de textura
+void DrawAndApplyTextureMapping(Canvas* pCanvas, Canvas::VERTEX Transformed[], Canvas::PIXEL color, Canvas* texture)
 {
-    Canvas::VERTEX Squad[] = {
-        {{-20, -20, 0, 1}, color, {0, 0, 0, 1}},
-        {{20, -20, 0, 1}, color, {1, 0, 0, 1}},
-        {{20, 20, 0, 1}, color, {1, 1, 0, 1}},
-        {{-20, 20, 0, 1}, color, {0, 1, 0, 1}},
-    };
+    // Dibuja el cuadrado
+    pCanvas->DrawQuad(Transformed, color);
+    // Aplica mapeo de textura
+    pCanvas->TextureMappingQuad(Transformed, texture);
+}
 
-    for (int i = 0; i < nCircles; ++i)
-    {
-        int newRadius = initialRadius + (i * radiusIncrement);
-        pCanvas->Circle(xc, yc, newRadius, color);
-        // gira los cuadrados en cada círculo
-        RotateAndDrawQuads(pCanvas, newRadius, ((2 * phi) / (newRadius + 1)), Squad, textures, numTextures, i);
-    }
+// Metodo intermedio para aplicar rotacion, dibujar y texturizar
+void RotateDrawQuads(Canvas* pCanvas, int distance, float phi, Canvas::VERTEX Squad[], Canvas* planetTextures[],
+                     int numTextures, int currentTextureIndex)
+{
+    // Cuadrados negros por tema de estetica
+    Canvas::PIXEL color = {0, 0, 0, 0};
+    Canvas::VERTEX Transformed[4];
+
+    // Aplica transformaciones a los vértices
+    ApplyVertexTransforms(pCanvas, (float)distance, phi, Squad, Transformed);
+    // Dibuja el cuadrado y aplica mapeo de textura
+    DrawAndApplyTextureMapping(pCanvas, Transformed, color, planetTextures[currentTextureIndex % numTextures]);
+}
+
+
+
+void DrawCirclesSquads(Canvas* pCanvas, float phi, Canvas* planetTextures[])
+{
+    int firstRadius = 80;
+    int moreCirclesDistance = 45;
+    int numCircles = 9;
+
+    // Color circulos en blanco
+    Canvas::PIXEL color = {255, 255, 255, 0};
+
+    Canvas::VERTEX Transformed[4];
+
+    // Definir el tamaño de los planetas
+    int planetSize [] ={10, 15, 20, 17, 40, 30, 20, 20, 5, 50};
+
 
     VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
 
+    for (int i = 0; i < numCircles; ++i)
+    {
+        float size = planetSize[i]; 
+        Canvas::VERTEX Squad[] = {
+            {{-size, -size, 0, 1}, color, {0, 0, 0, 1}},
+            {{size, -size, 0, 1}, color, {1, 0, 0, 1}},
+            {{size, size, 0, 1}, color, {1, 1, 0, 1}},
+            {{-size, size, 0, 1}, color, {0, 1, 0, 1}},
+        };
+        int newRadius = firstRadius + (i * moreCirclesDistance);
+        // Dibuja el círculo
+        pCanvas->Circle((int)ScreenSize.x / 2, (int)ScreenSize.y / 2, newRadius, color);
+        // Rota y dibuja los cuadrados
+        RotateDrawQuads(pCanvas, newRadius, ((2 * phi) / (newRadius + 1)), Squad, planetTextures, numCircles, i);
+    }
+
+    float size = planetSize[9]; 
+    Canvas::VERTEX Squad[] = {
+        {{-size, -size, 0, 1}, color, {0, 0, 0, 1}},
+        {{size, -size, 0, 1}, color, {1, 0, 0, 1}},
+        {{size, size, 0, 1}, color, {1, 1, 0, 1}},
+        {{-size, size, 0, 1}, color, {0, 1, 0, 1}},
+    };
+
+    // Mover al centro para mostrar el sol en medio
     MATRIX4D M = Translation(ScreenSize.x / 2, ScreenSize.y / 2, 0);
-    Canvas::VERTEX Transformed[4];
     Canvas::VertexProcessor(&M, (Canvas::VERTEXSHADER)VertexShaderSimple, Squad, Transformed, 4);
 
-    // Dibuja el cuadrado utilizando un listado de triángulos (dos triángulos que forman el cuadrado)
+    // Dibuja el cuadrado y texturizar el sol
     pCanvas->DrawQuad(Transformed, Canvas::PIXEL({0, 0, 0, 0}));
-    pCanvas->TextureMappingQuad(Transformed, textures[9]);
+    pCanvas->TextureMappingQuad(Transformed, planetTextures[9]);
 }
 
 void ShaderChess(Canvas::PIXEL* pDest,
@@ -283,27 +321,64 @@ void FanTriangles(Canvas* pCanvas)
 
 void Application::Update()
 {
+    /*
+     * José Fernando Resendiz Lopez - 38081
+     */
     auto pSwapChain = m_DXGIManager.GetSwapChain();
     auto pCanvas = m_DXGIManager.GetCanvas();
     static float hour = 8.0f;
     static float min = 20.0f;
     static float time = hour * 3600 + min * 60;
-    float scale = 1000.0;
-    float phi = scale * time * 3.141592;
-    float theta = 2 * 3.141592 * time;
+    float phi = time * 3.141592 * (1500);
+    float theta = time * 3.141592;
     pCanvas->Clear({0, 0, 0, 0});
 
-    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
     Canvas* planetTextures[] = {
         m_pMercury, m_pVenus, m_pEarth, m_pMars, m_pJupiter, m_pSaturn, m_pUranus, m_pNeptune, m_pPluto, m_pSun
     };
-    DrawMultipleCircles(pCanvas, ScreenSize.x / 2, ScreenSize.y / 2, 60, 9, 45, Canvas::PIXEL({255, 255, 255, 0}), phi,
-                        planetTextures, 10);
 
+    // Texturizar el espacio
+    Canvas* pTexture = nullptr;
+    pTexture = m_pUniverse->Clone();
+    pTexture->SetColorBorder({127, 127, 0, 0});
+    pTexture->SetAddressMode(Canvas::ADDRESS_MODE_MIRROR);
+    // Moviendo la textura al centro del canvas, utilizando transformaciones
+    VECTOR4D Size = {(float)pTexture->GetSizeX(), (float)pTexture->GetSizeY(), 0.0f, 0.0f};
+    VECTOR4D HalfSize = Size * 0.5f;
+    VECTOR4D ScreenSize = {(float)pCanvas->GetSizeX(), (float)pCanvas->GetSizeY(), 0.0f, 0.0f};
+    VECTOR4D HalfScreenSize = ScreenSize * 0.5f;
+    MATRIX4D M = Scaling((ScreenSize.x / Size.x) * 0.5f, (ScreenSize.y / Size.y) * 0.5f, 1) * RotationZ(theta / 5);
+    // Para aplicar el mapeo inverso, requerimos de invertir la matriz de transformación, a fin de poder aplicarlo a la textura
+    // y no al canvas objetivo.
+    MATRIX4D MInv;
+    Inverse(M, MInv);
+
+    float p, q;
+
+    for (int j = 0; j < pCanvas->GetSizeY(); j++)
+    {
+        p = j * MInv.m10 + MInv.m30;
+        q = j * MInv.m11 + MInv.m31;
+
+        for (int i = 0; i < pCanvas->GetSizeX(); i++)
+        {
+            //VECTOR4D Input = {(float)i, (float)j, 0.0f, 1.0f};
+            //VECTOR4D Output = Input * MInv;
+            //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(Output.x), (int)floor(Output.y));
+            //(*pCanvas)(i, j) = pTexture->Peek((int)floorf(p), (int)floor(q));
+            (*pCanvas)(i, j) = pTexture->PointSampler(p, q);
+            //(*pCanvas)(i, j) = pTexture->BilinearSampler(p, q);
+
+            p += MInv.m00;
+            q += MInv.m01;
+        }
+    }
+
+    // Dibujar planetas
+    DrawCirclesSquads(pCanvas, phi, planetTextures);
 
     m_DXGIManager.SendData(pCanvas->GetBuffer(),
                            pCanvas->GetPitch());
-
 
     // Almacenamos el último frame
     if (m_pLastFrame) Canvas::DestroyCanvas(m_pLastFrame);

@@ -16,8 +16,8 @@ IDXGIAdapter* DXGIManager::ChooseAdapter()
 		DXGI_ADAPTER_DESC dad;
 		pAdapter->GetDesc(&dad);
 		WCHAR szMessage[1024];
-		wsprintf(szMessage, L"Descripción %s", dad.Description);
-		switch (MessageBox(NULL, szMessage, L"¿Desea usar el siguiente adaptador?", MB_YESNOCANCEL))
+		wsprintf(szMessage, L"Descripcion %s", dad.Description);
+		switch (MessageBox(NULL, szMessage, L"Desea usar el siguiente adaptador?", MB_YESNOCANCEL))
 		{
 		case IDYES:
 			pFactory->Release();
